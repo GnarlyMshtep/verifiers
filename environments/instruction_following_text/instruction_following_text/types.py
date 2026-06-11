@@ -18,9 +18,15 @@ class Difficulty(StrEnum):
 
 class JudgeView(StrEnum):
     """What the judge is allowed to see of the actor's response(s)."""
-    OUTPUT = "output"   # final content only
-    COT = "cot"         # reasoning_content only
-    BOTH = "both"       # both, labeled
+    OUTPUT = "output"
+    COT = "cot"
+    BOTH = "both"
+
+
+class ConstraintName(StrEnum):
+    NO_CAPITALS = "no_capitals"
+    ALL_SENTENCES_T = "all_sentences_t"
+    ALTERNATING_12_18 = "alternating_12_18"
 
 
 @dataclass(frozen=True)
@@ -31,18 +37,19 @@ class ConstraintResult:
 
 @dataclass(frozen=True)
 class Constraint:
-    name: str
+    name: ConstraintName
     difficulty: Difficulty
     instruction: str
     verify: Callable[[str], ConstraintResult]
 
 
 @dataclass(frozen=True)
-class Task:
-    request_id: int
+class Problem:
+    """The per-example task spec. Serialized into the verifiers `info` column."""
     request: str
-    constraint_name: str
+    constraint: ConstraintName
     difficulty: Difficulty
+    request_id: int
 
 
 @dataclass(frozen=True)

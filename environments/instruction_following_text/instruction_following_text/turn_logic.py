@@ -66,6 +66,7 @@ class ComposedEnv(vf.MultiTurnEnv):
         self,
         turns: Sequence[Turn],
         global_reward_fns: Sequence[RewardFunc] = (),
+        reward_weights: Sequence[float] | None = None,
         **kwargs,
     ):
         self.turns = list(turns)
@@ -73,7 +74,11 @@ class ComposedEnv(vf.MultiTurnEnv):
         for i, t in enumerate(self.turns):
             fns += [make_scoped(i, fn) for fn in t.reward_fns]
         fns += list(global_reward_fns)
-        rubric = vf.Rubric(funcs=fns)
+        # Set weights at Rubric construction: MultiTurnEnv.__init__ wraps this Rubric into a
+        # RubricGroup (adding a monitor rubric), so setting weights on `self.rubric` afterward
+        # would target the wrapper and be silently ignored. `reward_weights` must align with
+        # the assembled `fns` order (per-turn scoped fns first, then global_reward_fns).
+        rubric = vf.Rubric(funcs=fns, weights=list(reward_weights) if reward_weights is not None else None)
         super().__init__(rubric=rubric, **kwargs)
 
     async def setup_state(self, state: State) -> State:

@@ -59,12 +59,12 @@ def load_environment(
 
     task_turn = TaskTurn(reward_fns=[constraint_satisfied, judge_reward])
 
+    # weights align with the assembled (scoped) fns order: [constraint, judge]
     env = ComposedEnv(
         turns=[task_turn],
+        reward_weights=[constraint_weight, judge_weight],
         dataset=dataset,
         system_prompt=PROMPTS[PromptKey.SYSTEM],
         max_turns=4,  # generous; @vf.stop ends after the task turn
     )
-    # weights map to the assembled (scoped) fns in order: [constraint, judge]
-    env.rubric.weights = [constraint_weight, judge_weight]
     return env

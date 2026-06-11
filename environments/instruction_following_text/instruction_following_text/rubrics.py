@@ -76,33 +76,48 @@ def make_judge_reward(
     judge_model: str,
     judge_prompt: str,
     judge_sampling_args: dict[str, Any] | None = None,
+    judge_attempts: int = 3,
 ) -> RewardFunc:
     """Build a reward fn that asks an LLM judge to score request execution in [0,1].
-    Logs the full judge input/output to state['judge_raw']."""
+    Logs the full judge input/output (every attempt) to state['judge_raw'].
+
+    Reasoning judges (e.g. gpt-oss via OpenRouter) intermittently return an empty
+    completion (finish_reason=stop, no content). We retry up to `judge_attempts` times
+    on an empty/unparseable response and raise only if all attempts fail — intentional
+    fault tolerance, never a silent default score."""
     sampling = judge_sampling_args or {}
 
     async def judge_request_followed(prompt, completion, answer, state, **kwargs) -> float:
         question = state["info"]["request"]
         response_text = render_view(completion, view)
         rendered = judge_prompt.format(question=question, response=response_text)
-        resp = await judge_client.chat.completions.create(
-            model=judge_model,
-            messages=[{"role": "user", "content": rendered}],
-            **sampling,
+        last_raw = ""
+        for attempt in range(judge_attempts):
+            resp = await judge_client.chat.completions.create(
+                model=judge_model,
+                messages=[{"role": "user", "content": rendered}],
+                **sampling,
+            )
+            msg = resp.choices[0].message
+            raw = msg.content or ""
+            state.setdefault("judge_raw", []).append(
+                {
+                    "view": str(view),
+                    "model": judge_model,
+                    "attempt": attempt,
+                    "prompt": rendered,
+                    "response": raw,
+                    "reasoning": getattr(msg, "reasoning_content", None),
+                    "full_response": resp.model_dump(),
+                }
+            )
+            try:
+                return parse_score(raw)
+            except ValueError:
+                last_raw = raw
+        raise ValueError(
+            f"judge returned no parseable 0-10 score after {judge_attempts} attempts; last={last_raw!r}"
         )
-        msg = resp.choices[0].message
-        raw = msg.content or ""
-        state.setdefault("judge_raw", []).append(
-            {
-                "view": str(view),
-                "model": judge_model,
-                "prompt": rendered,
-                "response": raw,
-                "reasoning": getattr(msg, "reasoning_content", None),
-                "full_response": resp.model_dump(),
-            }
-        )
-        return parse_score(raw)
 
     judge_request_followed.__name__ = f"judge_request_followed__{view.value}"
     return judge_request_followed

@@ -1,0 +1,85 @@
+from __future__ import annotations
+
+import re
+
+from .types import Constraint, ConstraintResult, Difficulty
+
+_SENTENCE_SPLIT = re.compile(r"[.!?]+(?:\s+|$)")
+
+
+def split_sentences(text: str) -> list[str]:
+    """Split into sentences, keeping terminal punctuation, dropping empties/whitespace."""
+    out: list[str] = []
+    pos = 0
+    for m in _SENTENCE_SPLIT.finditer(text):
+        chunk = text[pos:m.end()].strip()
+        if chunk:
+            out.append(chunk)
+        pos = m.end()
+    tail = text[pos:].strip()
+    if tail:
+        out.append(tail)
+    return out
+
+
+def _alpha_only(s: str) -> str:
+    return "".join(c for c in s if c.isalpha())
+
+
+def _verify_no_capitals(text: str) -> ConstraintResult:
+    caps = [c for c in text if c.isupper()]
+    return ConstraintResult(
+        satisfied=len(caps) == 0,
+        detail="no uppercase letters" if not caps else f"found uppercase: {''.join(caps[:10])}",
+    )
+
+
+def _verify_all_sentences_t(text: str) -> ConstraintResult:
+    sents = split_sentences(text)
+    if len(sents) < 1:
+        return ConstraintResult(False, "no sentences found")
+    for i, s in enumerate(sents):
+        a = _alpha_only(s)
+        if not a:
+            return ConstraintResult(False, f"sentence {i} has no letters")
+        if a[0].lower() != "t" or a[-1].lower() != "t":
+            return ConstraintResult(False, f"sentence {i} must start & end with 't': {s!r}")
+    return ConstraintResult(True, f"all {len(sents)} sentences start & end with 't'")
+
+
+def _verify_alternating_12_18(text: str) -> ConstraintResult:
+    sents = split_sentences(text)
+    if len(sents) < 2:
+        return ConstraintResult(False, f"need >=2 sentences, got {len(sents)}")
+    counts = [len(s.split()) for s in sents]
+    if any(c not in (12, 18) for c in counts):
+        return ConstraintResult(False, f"every sentence must be 12 or 18 words; got {counts}")
+    for i in range(1, len(counts)):
+        if counts[i] == counts[i - 1]:
+            return ConstraintResult(False, f"counts must alternate; got {counts}")
+    return ConstraintResult(True, f"alternating word counts {counts}")
+
+
+CONSTRAINTS: dict[str, Constraint] = {
+    "no_capitals": Constraint(
+        name="no_capitals",
+        difficulty=Difficulty.EASY,
+        instruction="Write your entire answer using no capital letters whatsoever.",
+        verify=_verify_no_capitals,
+    ),
+    "all_sentences_t": Constraint(
+        name="all_sentences_t",
+        difficulty=Difficulty.MEDIUM,
+        instruction="Write your answer so that every sentence both starts and ends with the letter 't'.",
+        verify=_verify_all_sentences_t,
+    ),
+    "alternating_12_18": Constraint(
+        name="alternating_12_18",
+        difficulty=Difficulty.HARD,
+        instruction=(
+            "Write your answer so that consecutive sentences alternate in length between "
+            "exactly 12 words and exactly 18 words."
+        ),
+        verify=_verify_alternating_12_18,
+    ),
+}

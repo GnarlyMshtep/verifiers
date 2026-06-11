@@ -41,6 +41,13 @@ def test_parse_score():
 def test_parse_score_no_int_raises():
     with pytest.raises(ValueError):
         parse_score("excellent")
+
+
+def test_parse_score_rejects_decimals_and_out_of_range():
+    for bad in ("7.5", "11", "100", "level5"):
+        with pytest.raises(ValueError):
+            parse_score(bad)
+    assert parse_score("between 8 and 10") == 1.0  # last standalone int
 import asyncio
 
 

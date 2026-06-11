@@ -50,10 +50,12 @@ def render_view(completion: Messages, view: JudgeView) -> str:
 
 
 def parse_score(text: str) -> float:
-    """Parse the judge's 0-10 integer (last integer in the text) into a [0,1] float."""
-    ints = re.findall(r"\b(10|[0-9])\b", text.strip())
+    """Parse the judge's 0-10 integer (last standalone integer) into a [0,1] float.
+    Rejects tokens adjacent to a word char or '.' so decimals (7.5) and out-of-range
+    numbers (11, 100) raise instead of silently mis-scoring."""
+    ints = re.findall(r"(?<![\w.])(10|[0-9])(?![\w.])", text.strip())
     if not ints:
-        raise ValueError(f"judge did not return a 0-10 integer: {text!r}")
+        raise ValueError(f"judge did not return a standalone 0-10 integer: {text!r}")
     return int(ints[-1]) / 10.0
 
 

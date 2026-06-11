@@ -1,4 +1,5 @@
 from instruction_following_text.constraints import CONSTRAINTS, split_sentences
+from instruction_following_text.types import ConstraintName
 
 
 def test_split_sentences_basic():
@@ -6,35 +7,35 @@ def test_split_sentences_basic():
 
 
 def test_no_capitals_pass():
-    assert CONSTRAINTS["no_capitals"].verify("this is all lowercase, 123 ok.").satisfied
+    assert CONSTRAINTS[ConstraintName.NO_CAPITALS].verify("this is all lowercase, 123 ok.").satisfied
 
 
 def test_no_capitals_fail():
-    assert not CONSTRAINTS["no_capitals"].verify("This has a Capital.").satisfied
+    assert not CONSTRAINTS[ConstraintName.NO_CAPITALS].verify("This has a Capital.").satisfied
 
 
 def test_all_sentences_t_pass_two():
-    r = CONSTRAINTS["all_sentences_t"].verify("Tonight it sat. That cat ate it.")
+    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify("Tonight it sat. That cat ate it.")
     assert r.satisfied, r.detail
 
 
 def test_all_sentences_t_pass_one():
-    r = CONSTRAINTS["all_sentences_t"].verify("Trust it.")
+    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify("Trust it.")
     assert r.satisfied, r.detail
 
 
 def test_all_sentences_t_fail_letter():
-    r = CONSTRAINTS["all_sentences_t"].verify("Tonight it sat. The dog ran.")
+    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify("Tonight it sat. The dog ran.")
     assert not r.satisfied
 
 
 def test_alternating_12_18_pass():
     s12 = " ".join(["word"] * 12) + "."
     s18 = " ".join(["word"] * 18) + "."
-    assert CONSTRAINTS["alternating_12_18"].verify(f"{s12} {s18} {s12}").satisfied
+    assert CONSTRAINTS[ConstraintName.ALTERNATING_12_18].verify(f"{s12} {s18} {s12}").satisfied
 
 
 def test_alternating_12_18_fail():
     s12 = " ".join(["word"] * 12) + "."
     s13 = " ".join(["word"] * 13) + "."
-    assert not CONSTRAINTS["alternating_12_18"].verify(f"{s12} {s13}").satisfied
+    assert not CONSTRAINTS[ConstraintName.ALTERNATING_12_18].verify(f"{s12} {s13}").satisfied

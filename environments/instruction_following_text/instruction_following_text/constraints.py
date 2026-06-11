@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from .types import Constraint, ConstraintResult, Difficulty
+from .types import Constraint, ConstraintName, ConstraintResult, Difficulty
 
 _SENTENCE_SPLIT = re.compile(r"[.!?]+(?:\s+|$)")
 
@@ -60,21 +60,21 @@ def _verify_alternating_12_18(text: str) -> ConstraintResult:
     return ConstraintResult(True, f"alternating word counts {counts}")
 
 
-CONSTRAINTS: dict[str, Constraint] = {
-    "no_capitals": Constraint(
-        name="no_capitals",
+CONSTRAINTS: dict[ConstraintName, Constraint] = {
+    ConstraintName.NO_CAPITALS: Constraint(
+        name=ConstraintName.NO_CAPITALS,
         difficulty=Difficulty.EASY,
         instruction="Write your entire answer using no capital letters whatsoever.",
         verify=_verify_no_capitals,
     ),
-    "all_sentences_t": Constraint(
-        name="all_sentences_t",
+    ConstraintName.ALL_SENTENCES_T: Constraint(
+        name=ConstraintName.ALL_SENTENCES_T,
         difficulty=Difficulty.MEDIUM,
         instruction="Write your answer so that every sentence both starts and ends with the letter 't'.",
         verify=_verify_all_sentences_t,
     ),
-    "alternating_12_18": Constraint(
-        name="alternating_12_18",
+    ConstraintName.ALTERNATING_12_18: Constraint(
+        name=ConstraintName.ALTERNATING_12_18,
         difficulty=Difficulty.HARD,
         instruction=(
             "Write your answer so that consecutive sentences alternate in length between "

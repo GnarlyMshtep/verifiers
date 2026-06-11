@@ -65,3 +65,42 @@ async def constraint_satisfied(prompt, completion, answer, state, **kwargs) -> f
     result = CONSTRAINTS[name].verify(text)
     state.setdefault("constraint_results", {})[name] = asdict(result)
     return 1.0 if result.satisfied else 0.0
+
+
+def make_judge_reward(
+    *,
+    view: JudgeView,
+    judge_client: AsyncOpenAI,
+    judge_model: str,
+    judge_prompt: str,
+    judge_sampling_args: dict[str, Any] | None = None,
+) -> RewardFunc:
+    """Build a reward fn that asks an LLM judge to score request execution in [0,1].
+    Logs the full judge input/output to state['judge_raw']."""
+    sampling = judge_sampling_args or {}
+
+    async def judge_request_followed(prompt, completion, answer, state, **kwargs) -> float:
+        question = state["info"]["request"]
+        response_text = render_view(completion, view)
+        rendered = judge_prompt.format(question=question, response=response_text)
+        resp = await judge_client.chat.completions.create(
+            model=judge_model,
+            messages=[{"role": "user", "content": rendered}],
+            **sampling,
+        )
+        msg = resp.choices[0].message
+        raw = msg.content or ""
+        state.setdefault("judge_raw", []).append(
+            {
+                "view": str(view),
+                "model": judge_model,
+                "prompt": rendered,
+                "response": raw,
+                "reasoning": getattr(msg, "reasoning_content", None),
+                "full_response": resp.model_dump(),
+            }
+        )
+        return parse_score(raw)
+
+    judge_request_followed.__name__ = f"judge_request_followed__{view.value}"
+    return judge_request_followed

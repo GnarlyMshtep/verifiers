@@ -1,7 +1,10 @@
+import asyncio
+
 import pytest
 
-from instruction_following_text.rubrics import parse_score, render_view
-from instruction_following_text.types import JudgeView
+from instruction_following_text.scorers import ConstraintScorer, parse_score, render_view
+from instruction_following_text.scorer_types import ConstraintScore
+from instruction_following_text.types import ConstraintName, Difficulty, JudgeView, Problem
 
 
 def _completion():
@@ -38,31 +41,29 @@ def test_parse_score():
     assert parse_score("Score: 8") == 0.8
 
 
-def test_parse_score_no_int_raises():
-    with pytest.raises(ValueError):
-        parse_score("excellent")
-
-
 def test_parse_score_rejects_decimals_and_out_of_range():
-    for bad in ("7.5", "11", "100", "level5"):
+    for bad in ("7.5", "11", "100", "level5", "excellent"):
         with pytest.raises(ValueError):
             parse_score(bad)
-    assert parse_score("between 8 and 10") == 1.0  # last standalone int
-import asyncio
+    assert parse_score("between 8 and 10") == 1.0
 
 
-def test_constraint_satisfied_reward():
-    from instruction_following_text.rubrics import constraint_satisfied
+def _problem(constraint: ConstraintName) -> Problem:
+    return Problem(request="r", constraint=constraint, difficulty=Difficulty.EASY, request_id=0)
+
+
+def test_constraint_scorer_pass():
+    scorer = ConstraintScorer()
     completion = [{"role": "assistant", "content": "this is all lowercase."}]
-    state = {"info": {"constraint": "no_capitals"}}
-    score = asyncio.run(constraint_satisfied(prompt=[], completion=completion, answer="", state=state))
-    assert score == 1.0
-    assert state["constraint_results"]["no_capitals"]["satisfied"] is True
+    res = asyncio.run(scorer.score(prompt=[], completion=completion, answer="",
+                                   problem=_problem(ConstraintName.NO_CAPITALS), state={}))
+    assert isinstance(res, ConstraintScore)
+    assert res.score == 1.0 and res.satisfied is True and res.constraint == ConstraintName.NO_CAPITALS
 
 
-def test_constraint_satisfied_reward_fail():
-    from instruction_following_text.rubrics import constraint_satisfied
+def test_constraint_scorer_fail():
+    scorer = ConstraintScorer()
     completion = [{"role": "assistant", "content": "This Has Capitals."}]
-    state = {"info": {"constraint": "no_capitals"}}
-    score = asyncio.run(constraint_satisfied(prompt=[], completion=completion, answer="", state=state))
-    assert score == 0.0
+    res = asyncio.run(scorer.score(prompt=[], completion=completion, answer="",
+                                   problem=_problem(ConstraintName.NO_CAPITALS), state={}))
+    assert res.score == 0.0 and res.satisfied is False

@@ -55,3 +55,13 @@ def parse_score(text: str) -> float:
     if not ints:
         raise ValueError(f"judge did not return a 0-10 integer: {text!r}")
     return int(ints[-1]) / 10.0
+
+
+async def constraint_satisfied(prompt, completion, answer, state, **kwargs) -> float:
+    """Rule-based reward: 1.0 iff the response satisfies the task's constraint.
+    Reads the constraint name from state['info']; logs the detailed result to state."""
+    name = state["info"]["constraint"]
+    text = last_assistant_text(completion)
+    result = CONSTRAINTS[name].verify(text)
+    state.setdefault("constraint_results", {})[name] = asdict(result)
+    return 1.0 if result.satisfied else 0.0

@@ -41,3 +41,21 @@ def test_parse_score():
 def test_parse_score_no_int_raises():
     with pytest.raises(ValueError):
         parse_score("excellent")
+import asyncio
+
+
+def test_constraint_satisfied_reward():
+    from instruction_following_text.rubrics import constraint_satisfied
+    completion = [{"role": "assistant", "content": "this is all lowercase."}]
+    state = {"info": {"constraint": "no_capitals"}}
+    score = asyncio.run(constraint_satisfied(prompt=[], completion=completion, answer="", state=state))
+    assert score == 1.0
+    assert state["constraint_results"]["no_capitals"]["satisfied"] is True
+
+
+def test_constraint_satisfied_reward_fail():
+    from instruction_following_text.rubrics import constraint_satisfied
+    completion = [{"role": "assistant", "content": "This Has Capitals."}]
+    state = {"info": {"constraint": "no_capitals"}}
+    score = asyncio.run(constraint_satisfied(prompt=[], completion=completion, answer="", state=state))
+    assert score == 0.0

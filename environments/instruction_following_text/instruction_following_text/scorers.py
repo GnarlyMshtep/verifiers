@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Callable
 
 from openai import AsyncOpenAI
 from verifiers.types import Messages, State
@@ -33,6 +33,14 @@ def last_assistant_text(completion: Messages) -> str:
     if not msgs:
         raise ValueError("no assistant message in completion")
     return _msg_field(msgs[-1], "content") or ""
+
+
+def _role_text(messages: Messages, role: str, last: bool = False) -> str:
+    """First (or last) message content for `role` in `messages`, or '' if none."""
+    msgs = [m for m in messages if _msg_field(m, "role") == role]
+    if not msgs:
+        return ""
+    return _msg_field(msgs[-1] if last else msgs[0], "content") or ""
 
 
 def render_view(completion: Messages, view: JudgeView) -> str:
@@ -96,7 +104,7 @@ class JudgeScorer(Scorer):
         view: JudgeView,
         judge_client: AsyncOpenAI,
         judge_model: str,
-        judge_prompt: str,
+        judge_prompt_fn: Callable[..., str],
         judge_sampling_args: dict[str, Any] | None = None,
         judge_attempts: int = 3,
         weight: float = 1.0,
@@ -104,14 +112,18 @@ class JudgeScorer(Scorer):
         self.view = view
         self.judge_client = judge_client
         self.judge_model = judge_model
-        self.judge_prompt = judge_prompt
+        self.judge_prompt_fn = judge_prompt_fn
         self.sampling = judge_sampling_args or {}
         self.judge_attempts = judge_attempts
         self.weight = weight
 
     async def score(self, *, prompt, completion, answer, problem: Problem, state) -> JudgeScore:
-        rendered = self.judge_prompt.format(
-            question=problem.request, response=render_view(completion, self.view)
+        # The judge sees the actor's system prompt + the FULL user request (incl. the formatting
+        # requirement, the last user message) — taken from the actual actor prompt, never trimmed.
+        rendered = self.judge_prompt_fn(
+            system=_role_text(prompt, "system"),
+            question=_role_text(prompt, "user", last=True),
+            response=render_view(completion, self.view),
         )
         attempts: list[dict[str, Any]] = []
         last_raw = ""

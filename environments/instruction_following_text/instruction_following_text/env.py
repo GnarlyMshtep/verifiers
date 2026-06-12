@@ -5,7 +5,7 @@ import os
 from openai import AsyncOpenAI
 
 from .dataset import build_dataset
-from .prompts import PROMPTS, PromptKey
+from .prompts import PROMPTS, PromptKey, render_judge_prompt
 from .scorers import ConstraintScorer, JudgeScorer
 from .turn_logic import ComposedEnv, Turn
 from .types import Difficulty, JudgeView, TurnName
@@ -44,7 +44,7 @@ def load_environment(
             view=JudgeView(judge_view),
             judge_client=judge_client,
             judge_model=judge_model,
-            judge_prompt=PROMPTS[PromptKey.JUDGE_REQUEST_FOLLOWED],
+            judge_prompt_fn=render_judge_prompt,
             judge_sampling_args={
                 "max_tokens": judge_max_tokens,
                 "temperature": 0.0,

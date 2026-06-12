@@ -6,7 +6,7 @@ from openai import AsyncOpenAI
 
 from .dataset import build_dataset
 from .prompts import PROMPTS, PromptKey
-from .rubrics import constraint_satisfied, make_judge_reward
+from .scorers import ConstraintScorer, JudgeScorer
 from .turn_logic import ComposedEnv, Turn
 from .types import Difficulty, JudgeView, TurnName
 
@@ -15,13 +15,6 @@ class TaskTurn(Turn):
     """Turn 0: the instruction-following task. Pre-entered by the dataset prompt."""
 
     name = TurnName.TASK
-
-    def __init__(self, reward_fns):
-        self._reward_fns = list(reward_fns)
-
-    @property
-    def reward_fns(self):
-        return self._reward_fns
 
 
 def load_environment(
@@ -45,26 +38,26 @@ def load_environment(
         raise ValueError(f"judge api key env var {judge_api_key_var!r} is not set")
     judge_client = AsyncOpenAI(base_url=judge_base_url, api_key=api_key)
 
-    judge_reward = make_judge_reward(
-        view=JudgeView(judge_view),
-        judge_client=judge_client,
-        judge_model=judge_model,
-        judge_prompt=PROMPTS[PromptKey.JUDGE_REQUEST_FOLLOWED],
-        judge_sampling_args={
-            "max_tokens": judge_max_tokens,
-            "temperature": 0.0,
-            "extra_body": {"reasoning": {"effort": judge_reasoning_effort}},
-        },
-    )
+    scorers = [
+        ConstraintScorer(weight=constraint_weight),
+        JudgeScorer(
+            view=JudgeView(judge_view),
+            judge_client=judge_client,
+            judge_model=judge_model,
+            judge_prompt=PROMPTS[PromptKey.JUDGE_REQUEST_FOLLOWED],
+            judge_sampling_args={
+                "max_tokens": judge_max_tokens,
+                "temperature": 0.0,
+                "extra_body": {"reasoning": {"effort": judge_reasoning_effort}},
+            },
+            weight=judge_weight,
+        ),
+    ]
 
-    task_turn = TaskTurn(reward_fns=[constraint_satisfied, judge_reward])
-
-    # weights align with the assembled (scoped) fns order: [constraint, judge]
-    env = ComposedEnv(
-        turns=[task_turn],
-        reward_weights=[constraint_weight, judge_weight],
+    return ComposedEnv(
+        turns=[TaskTurn()],
+        scorers=scorers,
         dataset=dataset,
         system_prompt=PROMPTS[PromptKey.SYSTEM],
-        max_turns=4,  # generous; @vf.stop ends after the task turn
+        max_turns=4,
     )
-    return env

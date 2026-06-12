@@ -1,0 +1,2002 @@
+[
+  {
+    "request_id": 0,
+    "request": "Write a short story that involves the following elements—a rural village, a supernatural creature, and a full moon."
+  },
+  {
+    "request_id": 1,
+    "request": "How much would it cost to buy 10 dozen eggs?"
+  },
+  {
+    "request_id": 2,
+    "request": "Describe the sound a dog might make"
+  },
+  {
+    "request_id": 3,
+    "request": "Make a list of 5 advantages of living in the countryside"
+  },
+  {
+    "request_id": 4,
+    "request": "Design a quilt with 5 different colors."
+  },
+  {
+    "request_id": 5,
+    "request": "Classify these three countries: France, India and Japan."
+  },
+  {
+    "request_id": 6,
+    "request": "Brainstorm two novel ideas for an online business"
+  },
+  {
+    "request_id": 7,
+    "request": "Create a story about a person who helped a stranger."
+  },
+  {
+    "request_id": 8,
+    "request": "Explain how a computer generates a random number."
+  },
+  {
+    "request_id": 9,
+    "request": "Generate a sentence that implies the busy life of a college student."
+  },
+  {
+    "request_id": 10,
+    "request": "Construct a short story with a moral lesson"
+  },
+  {
+    "request_id": 11,
+    "request": "Describe the process of operating a 3D printer."
+  },
+  {
+    "request_id": 12,
+    "request": "Summarize the main points of Martin Luther King, Jr.'s \"I Have a Dream\" speech."
+  },
+  {
+    "request_id": 13,
+    "request": "What is a virtual private network (VPN)?"
+  },
+  {
+    "request_id": 14,
+    "request": "Rewrite the following sentence so it is in the passive voice:\n\nJack has been writing a book for six months."
+  },
+  {
+    "request_id": 15,
+    "request": "Rewrite the following sentence with proper grammar and punctuation: accidently walking in the rain"
+  },
+  {
+    "request_id": 16,
+    "request": "What activities can people do to relax on a Sunday afternoon?"
+  },
+  {
+    "request_id": 17,
+    "request": "Describe a time you used your problem solving skills to solve an issue."
+  },
+  {
+    "request_id": 18,
+    "request": "Create a list of tips for organizing a successful event."
+  },
+  {
+    "request_id": 19,
+    "request": "Create a web page to allow users to register for your workshop."
+  },
+  {
+    "request_id": 20,
+    "request": "Build a system to classify animals into the different categories i.e Mammal, Reptile, Amphibian, Insect , Fish."
+  },
+  {
+    "request_id": 21,
+    "request": "Name three composers of the Baroque period."
+  },
+  {
+    "request_id": 22,
+    "request": "Write down three principles of object-oriented programming."
+  },
+  {
+    "request_id": 23,
+    "request": "Identify 3 benefits of using a cloud platform for data storage and computation."
+  },
+  {
+    "request_id": 24,
+    "request": "Describe the function of an artificial limb."
+  },
+  {
+    "request_id": 25,
+    "request": "Translate the following sentence from English to Spanish: \"My friend has two cats.\""
+  },
+  {
+    "request_id": 26,
+    "request": "Which is the world's longest river?"
+  },
+  {
+    "request_id": 27,
+    "request": "Generate a list of five questions to ask a friend who just moved to a new city."
+  },
+  {
+    "request_id": 28,
+    "request": "Predict what would be the kind of food that someone living in a tropical area would be likely to eat."
+  },
+  {
+    "request_id": 29,
+    "request": "Generate a plausible solution to reduce global carbon emissions."
+  },
+  {
+    "request_id": 30,
+    "request": "Give an example of a simple sentence that follows the subject-verb-object (SVO) structure."
+  },
+  {
+    "request_id": 31,
+    "request": "Write a short story that is connected to the theme of courage."
+  },
+  {
+    "request_id": 32,
+    "request": "Construct a query that will find all students with blue eyes."
+  },
+  {
+    "request_id": 33,
+    "request": "Name three elements of movement in a ballroom dance"
+  },
+  {
+    "request_id": 34,
+    "request": "How can you make a classroom more interactive?"
+  },
+  {
+    "request_id": 35,
+    "request": "Describe a problem solving approach for reducing water pollution in a large city."
+  },
+  {
+    "request_id": 36,
+    "request": "Write an algorithm that checks if a given sentence has sentence fragments."
+  },
+  {
+    "request_id": 37,
+    "request": "Generate a two-sentence description of the process of designing a website"
+  },
+  {
+    "request_id": 38,
+    "request": "Create a story about an unusual friendship"
+  },
+  {
+    "request_id": 39,
+    "request": "Identify the components of a good formal essay?"
+  },
+  {
+    "request_id": 40,
+    "request": "Generate instructions for a person to make a chocolate cake."
+  },
+  {
+    "request_id": 41,
+    "request": "Write an algorithm to determine the digital root of a number."
+  },
+  {
+    "request_id": 42,
+    "request": "Create a program that logs the temperature of the computer and limits its usage depending on the given value."
+  },
+  {
+    "request_id": 43,
+    "request": "Give an example of a time when you had to think outside the box."
+  },
+  {
+    "request_id": 44,
+    "request": "Translate this sentence into Spanish: \"I want to learn to play the guitar\""
+  },
+  {
+    "request_id": 45,
+    "request": "State one method to reduce the environmental footprint of your household."
+  },
+  {
+    "request_id": 46,
+    "request": "Generate a design for a professional logo for a tutoring business."
+  },
+  {
+    "request_id": 47,
+    "request": "Explain the historical significance of the Cuban Missile Crisis."
+  },
+  {
+    "request_id": 48,
+    "request": "Create a personification of a night wind."
+  },
+  {
+    "request_id": 49,
+    "request": "Name three actors with Academy Award wins."
+  },
+  {
+    "request_id": 50,
+    "request": "List out five trends in fashion this Spring season"
+  },
+  {
+    "request_id": 51,
+    "request": "Edit the following sentence to eliminate any grammar errors: They tried to fix the car all day."
+  },
+  {
+    "request_id": 52,
+    "request": "What is the full form of CPU?"
+  },
+  {
+    "request_id": 53,
+    "request": "Convert 20 inches to centimetres"
+  },
+  {
+    "request_id": 54,
+    "request": "Name a public figure who has made an impact in the world of quantum computing."
+  },
+  {
+    "request_id": 55,
+    "request": "Find out the population size of the city of Tokyo"
+  },
+  {
+    "request_id": 56,
+    "request": "List two advantages of using a content management system (CMS)."
+  },
+  {
+    "request_id": 57,
+    "request": "Name one type of training that companies can provide for their employees?"
+  },
+  {
+    "request_id": 58,
+    "request": "Research the topic of \"Artificial Intelligence in Healthcare\" and summarize the key points."
+  },
+  {
+    "request_id": 59,
+    "request": "Who can benefit from meditation and why?"
+  },
+  {
+    "request_id": 60,
+    "request": "Construct a question using the following words: what, long, take."
+  },
+  {
+    "request_id": 61,
+    "request": "Identify the tone of this sentence: With the addition of this new technology, our company will reach new heights."
+  },
+  {
+    "request_id": 62,
+    "request": "Create a recipe for an exciting new juice combination."
+  },
+  {
+    "request_id": 63,
+    "request": "Generate a response to the user's query: \"What should I do to improve my language skills?\"."
+  },
+  {
+    "request_id": 64,
+    "request": "What should I do if I hear a steady beeping sound coming from my computer?"
+  },
+  {
+    "request_id": 65,
+    "request": "Summarize the article 'The Pros and Cons of Artificial Intelligence'."
+  },
+  {
+    "request_id": 66,
+    "request": "Summarize the article \"The Role of Artificial Intelligence in Everyday Life\"."
+  },
+  {
+    "request_id": 67,
+    "request": "Rewrite the following sentence to make it more concise: \"The board of directors decided that new employees should be allowed to work from home on Fridays.\""
+  },
+  {
+    "request_id": 68,
+    "request": "Describe the overall feeling of the work environment at a tech startup"
+  },
+  {
+    "request_id": 69,
+    "request": "What is the term for a break in the naming of a chemical compound?"
+  },
+  {
+    "request_id": 70,
+    "request": "Create a list of five simple questions that can be used to initiate small talk."
+  },
+  {
+    "request_id": 71,
+    "request": "Research one popular application of artificial neural networks."
+  },
+  {
+    "request_id": 72,
+    "request": "Construct a persuasive argument for the importance of biodiversity."
+  },
+  {
+    "request_id": 73,
+    "request": "What is the capital of Bangladesh? Output the name of the capital."
+  },
+  {
+    "request_id": 74,
+    "request": "Rewrite this sentence to make it more formal - \"I found the solution\""
+  },
+  {
+    "request_id": 75,
+    "request": "Generate an outline for a 10-minute speech about a futuristic city."
+  },
+  {
+    "request_id": 76,
+    "request": "Name 5 flowers found in a tropical rainforest."
+  },
+  {
+    "request_id": 77,
+    "request": "Create an animation to represent the concept of equal opportunity."
+  },
+  {
+    "request_id": 78,
+    "request": "Give an example of something that is alive."
+  },
+  {
+    "request_id": 79,
+    "request": "Design a virtual assistant based on your needs."
+  },
+  {
+    "request_id": 80,
+    "request": "Summarize the implications of a highly automated economy."
+  },
+  {
+    "request_id": 81,
+    "request": "Describe a summer day in Istanbul."
+  },
+  {
+    "request_id": 82,
+    "request": "Describe a way to make a delicious banana smoothie."
+  },
+  {
+    "request_id": 83,
+    "request": "Describe the key elements of a restaurant menu."
+  },
+  {
+    "request_id": 84,
+    "request": "Construct an example of a quadratic equation."
+  },
+  {
+    "request_id": 85,
+    "request": "List 3 reasons why social media can be harmful."
+  },
+  {
+    "request_id": 86,
+    "request": "Propose a creative and original idea."
+  },
+  {
+    "request_id": 87,
+    "request": "Predict what a person would do if they had a bad day."
+  },
+  {
+    "request_id": 88,
+    "request": "Provide an example of a specific use case for an AI assistant in an academic setting"
+  },
+  {
+    "request_id": 89,
+    "request": "Generate a series of 8 words the describe running."
+  },
+  {
+    "request_id": 90,
+    "request": "Compose a haiku about cats"
+  },
+  {
+    "request_id": 91,
+    "request": "Explain why our company’s product is superior to the competition."
+  },
+  {
+    "request_id": 92,
+    "request": "Explain why the following statement is accurate: \"true leadership is about inspiring others to reach their potential\"."
+  },
+  {
+    "request_id": 93,
+    "request": "Write two words that rhyme with \"moon\"."
+  },
+  {
+    "request_id": 94,
+    "request": "What could be the economic effect of a proposal to raise minimum wage?"
+  },
+  {
+    "request_id": 95,
+    "request": "Find a five-letter word that begins with 'd' and ends with 's'."
+  },
+  {
+    "request_id": 96,
+    "request": "Name three Latin American countries."
+  },
+  {
+    "request_id": 97,
+    "request": "Create a log of the daily activities of an average person."
+  },
+  {
+    "request_id": 98,
+    "request": "Describe the impact of the coronavirus on the economy."
+  },
+  {
+    "request_id": 99,
+    "request": "Create a list of 10 activities to boost creativity."
+  },
+  {
+    "request_id": 100,
+    "request": "Generate 4 description of a painting that has a mountain, a blue sky and a tree in the foreground."
+  },
+  {
+    "request_id": 101,
+    "request": "List all countries in North America, in alphabetical order."
+  },
+  {
+    "request_id": 102,
+    "request": "How would you phrase an apology to a friend?"
+  },
+  {
+    "request_id": 103,
+    "request": "Suggest a strategy to increase understanding and engagement in the workplace."
+  },
+  {
+    "request_id": 104,
+    "request": "Arrange this list of letters to make the longest English word possible: i, s, l, a, n."
+  },
+  {
+    "request_id": 105,
+    "request": "Describe a situation when you had to show mental strength."
+  },
+  {
+    "request_id": 106,
+    "request": "Find the meaning of the term 'artificial intelligence'"
+  },
+  {
+    "request_id": 107,
+    "request": "Generate a job description for an Artificial Intelligence engineer."
+  },
+  {
+    "request_id": 108,
+    "request": "Create a pictogram to show the meaning of the following phrase: \"The wheels on the bus go round and round.\""
+  },
+  {
+    "request_id": 109,
+    "request": "Generate a list of items that would be necessary to open a small restaurant"
+  },
+  {
+    "request_id": 110,
+    "request": "Generate a step-by-step guide for baking a cake."
+  },
+  {
+    "request_id": 111,
+    "request": "Write a definition for the term \"machine learning\"."
+  },
+  {
+    "request_id": 112,
+    "request": "Draft a business letter to a potential client"
+  },
+  {
+    "request_id": 113,
+    "request": "Name one tool that can help with data visualization."
+  },
+  {
+    "request_id": 114,
+    "request": "Given the input, generate a sentence about the importance of taking risks."
+  },
+  {
+    "request_id": 115,
+    "request": "Explain why AI is important in data security."
+  },
+  {
+    "request_id": 116,
+    "request": "What are the two main sources of air pollution?"
+  },
+  {
+    "request_id": 117,
+    "request": "List three advantages of renewable energy."
+  },
+  {
+    "request_id": 118,
+    "request": "Name the biggest lake in Africa."
+  },
+  {
+    "request_id": 119,
+    "request": "Generate a hashtag that represents a movement"
+  },
+  {
+    "request_id": 120,
+    "request": "Suggest a simple breakfast recipe that can be made in under 20 minutes."
+  },
+  {
+    "request_id": 121,
+    "request": "Give an example of a creative way to use GPT models."
+  },
+  {
+    "request_id": 122,
+    "request": "Construct a survey about online shopping experiences."
+  },
+  {
+    "request_id": 123,
+    "request": "Research and explain what are the properties of a prime number."
+  },
+  {
+    "request_id": 124,
+    "request": "Describe the process of how a steam engine works."
+  },
+  {
+    "request_id": 125,
+    "request": "Identify the genre of this movie trailer:\n\nhttps://www.youtube.com/watch?v=fYgZh8iRmgo"
+  },
+  {
+    "request_id": 126,
+    "request": "Given a list of numbers, develop an algorithm to find the maximum sum of a subarray."
+  },
+  {
+    "request_id": 127,
+    "request": "Generate a math problem for grade 5"
+  },
+  {
+    "request_id": 128,
+    "request": "Explain the differences between a formal and an informal letter."
+  },
+  {
+    "request_id": 129,
+    "request": "Compare the benefits of eating grilled fish to eating fried fish"
+  },
+  {
+    "request_id": 130,
+    "request": "Describe the characters of a story."
+  },
+  {
+    "request_id": 131,
+    "request": "Describe a system capable of detecting hate speech in tweets."
+  },
+  {
+    "request_id": 132,
+    "request": "Design an algorithm for analyzing text."
+  },
+  {
+    "request_id": 133,
+    "request": "Explain briefly how one can install an application on their computer."
+  },
+  {
+    "request_id": 134,
+    "request": "Name two services you can use to make international calls."
+  },
+  {
+    "request_id": 135,
+    "request": "Explain the relationship between a conflict and its resolution."
+  },
+  {
+    "request_id": 136,
+    "request": "Design a game involving two players and explain the rules."
+  },
+  {
+    "request_id": 137,
+    "request": "Come up with an argument that supports the statement that technology has made the world more connected."
+  },
+  {
+    "request_id": 138,
+    "request": "Compose a rap verse about the power of friendship."
+  },
+  {
+    "request_id": 139,
+    "request": "Come up with a slogan for a company that sells organic food products."
+  },
+  {
+    "request_id": 140,
+    "request": "Generate a new sentence using the words 'visit' and 'beach'."
+  },
+  {
+    "request_id": 141,
+    "request": "What is the scientific term for the phenomenon of water turning into ice?"
+  },
+  {
+    "request_id": 142,
+    "request": "What is the impact of deforestation on wildlife?"
+  },
+  {
+    "request_id": 143,
+    "request": "Design a logo for a vegan cooking class."
+  },
+  {
+    "request_id": 144,
+    "request": "Describe the design of the Eiffel Tower"
+  },
+  {
+    "request_id": 145,
+    "request": "Write the general formula for the perimeter of a right triangle."
+  },
+  {
+    "request_id": 146,
+    "request": "Write a sentence using the phrase \"turn of phrase\"."
+  },
+  {
+    "request_id": 147,
+    "request": "Find the prime factorization for the number 22."
+  },
+  {
+    "request_id": 148,
+    "request": "Generate an encryption protocol"
+  },
+  {
+    "request_id": 149,
+    "request": "Explain the significance of the Black Lives Matter movement."
+  },
+  {
+    "request_id": 150,
+    "request": "What is the lowest number which is divisible by 12, 15, and 18?"
+  },
+  {
+    "request_id": 151,
+    "request": "How to generate a random password"
+  },
+  {
+    "request_id": 152,
+    "request": "Write a sentence that starts with \"He kept walking\"."
+  },
+  {
+    "request_id": 153,
+    "request": "Describe the lifetime of a star."
+  },
+  {
+    "request_id": 154,
+    "request": "In 150 words, explain why technology is important in today's society."
+  },
+  {
+    "request_id": 155,
+    "request": "Pick 5 adjectives to describe a house in the mountains."
+  },
+  {
+    "request_id": 156,
+    "request": "Name a type of rock that is made from cooled lava."
+  },
+  {
+    "request_id": 157,
+    "request": "Create a problem statement for an online course about public speaking."
+  },
+  {
+    "request_id": 158,
+    "request": "Rewrite this expression to allow for a different result: (1 + 2) x 3."
+  },
+  {
+    "request_id": 159,
+    "request": "Design a website layout for a movie review blog."
+  },
+  {
+    "request_id": 160,
+    "request": "Generate a guiding vision statement to motivate your team."
+  },
+  {
+    "request_id": 161,
+    "request": "Generate a list of sentence starters to use in persuasive writing."
+  },
+  {
+    "request_id": 162,
+    "request": "Define the term 'machine learning'."
+  },
+  {
+    "request_id": 163,
+    "request": "Search the internet and make a comparison table for two different types of digital cameras."
+  },
+  {
+    "request_id": 164,
+    "request": "Give an example of a system of equations."
+  },
+  {
+    "request_id": 165,
+    "request": "Write a \"good luck\" message in response to an upcoming exam."
+  },
+  {
+    "request_id": 166,
+    "request": "Generate 3 sentences about the intersection of technology and biology."
+  },
+  {
+    "request_id": 167,
+    "request": "Give an example of a stateful lambda function"
+  },
+  {
+    "request_id": 168,
+    "request": "Group the following words into two categories according to their parts of speech: plant, flower, delicious, intelligent."
+  },
+  {
+    "request_id": 169,
+    "request": "Rewrite the sentence using a different verb:\nThe bank robbed him of his money."
+  },
+  {
+    "request_id": 170,
+    "request": "Make a list of three famous landmarks in India."
+  },
+  {
+    "request_id": 171,
+    "request": "Write a code in Python that will generate a random string of 5 upper-case letters."
+  },
+  {
+    "request_id": 172,
+    "request": "Rank the following places from greatest to least in terms of environmental impact: factory, coal power plant, oil rig"
+  },
+  {
+    "request_id": 173,
+    "request": "Generate a code that will print out all odd numbers between 1-20"
+  },
+  {
+    "request_id": 174,
+    "request": "Summarize the book \"The Catcher in the Rye\" in one sentence."
+  },
+  {
+    "request_id": 175,
+    "request": "As a new manager, what three questions should you ask your team during the first week?"
+  },
+  {
+    "request_id": 176,
+    "request": "Compose a haiku that reflects on nature."
+  },
+  {
+    "request_id": 177,
+    "request": "Come up with a 10-word sentence that begins with \"I love\"."
+  },
+  {
+    "request_id": 178,
+    "request": "Translate the phrase \"All that glitters is not gold\" into Spanish."
+  },
+  {
+    "request_id": 179,
+    "request": "Create a profile description for a personal trainer"
+  },
+  {
+    "request_id": 180,
+    "request": "Explain what climate change is"
+  },
+  {
+    "request_id": 181,
+    "request": "Generate a poem on the topic of winter."
+  },
+  {
+    "request_id": 182,
+    "request": "Compare and contrast the two sports Soccer and American Football."
+  },
+  {
+    "request_id": 183,
+    "request": "Brainstorm five ideas to engage people with a non-profit organisation."
+  },
+  {
+    "request_id": 184,
+    "request": "Is the following sentence true or false? All atoms of the same element have the same mass."
+  },
+  {
+    "request_id": 185,
+    "request": "Is it possible to see a rainbow during a storm?"
+  },
+  {
+    "request_id": 186,
+    "request": "Create a CSS code to style a button with a bright green background and white text."
+  },
+  {
+    "request_id": 187,
+    "request": "How does the digestive system work?"
+  },
+  {
+    "request_id": 188,
+    "request": "Brainstorm two ideas for improving this website."
+  },
+  {
+    "request_id": 189,
+    "request": "Show how to set up a wifi network"
+  },
+  {
+    "request_id": 190,
+    "request": "What are the different uses of machine learning?"
+  },
+  {
+    "request_id": 191,
+    "request": "What are some of the advantages of using artificial intelligence?"
+  },
+  {
+    "request_id": 192,
+    "request": "Generate a list of six essential items that someone would need in a business environment."
+  },
+  {
+    "request_id": 193,
+    "request": "Why are core exercises important?"
+  },
+  {
+    "request_id": 194,
+    "request": "Classify the type of point (maximum, minimum, or none) at the critical point of the differential equation y=3x^3 + 10x^2 + 5."
+  },
+  {
+    "request_id": 195,
+    "request": "Make a robot hand using items from around the house."
+  },
+  {
+    "request_id": 196,
+    "request": "Generate five questions related to nuclear physics."
+  },
+  {
+    "request_id": 197,
+    "request": "Give five reasons why solar energy is a better option than fossil fuels"
+  },
+  {
+    "request_id": 198,
+    "request": "Name three ways to save energy in the office."
+  },
+  {
+    "request_id": 199,
+    "request": "What are the major components of an automated marketing system?"
+  },
+  {
+    "request_id": 200,
+    "request": "Write a list of ingredients."
+  },
+  {
+    "request_id": 201,
+    "request": "Explain the three major forms of cell division"
+  },
+  {
+    "request_id": 202,
+    "request": "Write a persuasive essay on why public transportation should be used more."
+  },
+  {
+    "request_id": 203,
+    "request": "Create a list of 10 random numbers between 1 and 100."
+  },
+  {
+    "request_id": 204,
+    "request": "Generate a joke about two aliens."
+  },
+  {
+    "request_id": 205,
+    "request": "List three goals of AI safety research."
+  },
+  {
+    "request_id": 206,
+    "request": "Classify the following sentence as either false or true.\n\"The Himalayas are the highest mountain range in the world.\""
+  },
+  {
+    "request_id": 207,
+    "request": "How did the Industrial Revolution change society?"
+  },
+  {
+    "request_id": 208,
+    "request": "Write an expression comparing two TV series."
+  },
+  {
+    "request_id": 209,
+    "request": "Give an example of an active sentence and passive sentence."
+  },
+  {
+    "request_id": 210,
+    "request": "Come up with five questions about Mars"
+  },
+  {
+    "request_id": 211,
+    "request": "What type of economic system exists in Canada?"
+  },
+  {
+    "request_id": 212,
+    "request": "Calculate the factorial of 6."
+  },
+  {
+    "request_id": 213,
+    "request": "Explain the concept of Big Data in layman terms."
+  },
+  {
+    "request_id": 214,
+    "request": "How might you go about reducing the amount of plastic you use?"
+  },
+  {
+    "request_id": 215,
+    "request": "Describe what you think the most important characteristics of strong leadership are."
+  },
+  {
+    "request_id": 216,
+    "request": "Create a step-by-step tutorial on setting up a cloud based development environment."
+  },
+  {
+    "request_id": 217,
+    "request": "Suggest two songs with similar beats."
+  },
+  {
+    "request_id": 218,
+    "request": "List 5 health benefits of exercise."
+  },
+  {
+    "request_id": 219,
+    "request": "Combine this sentence with the one following it into one: \nThe dog barked loudly \nThe cat meowed"
+  },
+  {
+    "request_id": 220,
+    "request": "What do we mean by bespoke software?"
+  },
+  {
+    "request_id": 221,
+    "request": "Define the term ‘genetic engineering’"
+  },
+  {
+    "request_id": 222,
+    "request": "What are the health effects of consuming too much sugar?"
+  },
+  {
+    "request_id": 223,
+    "request": "Provide an example of an idiom with its definition."
+  },
+  {
+    "request_id": 224,
+    "request": "Create a flow chart for how to make the perfect omelette."
+  },
+  {
+    "request_id": 225,
+    "request": "Generate a five-word slogan that describes the company Apple."
+  },
+  {
+    "request_id": 226,
+    "request": "Describe the benefits of getting a college degree."
+  },
+  {
+    "request_id": 227,
+    "request": "What and where were the main issues of the American Revolution?"
+  },
+  {
+    "request_id": 228,
+    "request": "State the definition of the phrase 'wet behind the ears'."
+  },
+  {
+    "request_id": 229,
+    "request": "Generate a report on the projected effects of climate change on the farming industry in the next 5 years."
+  },
+  {
+    "request_id": 230,
+    "request": "Rank the US states based on the highest percentage of elderly population. Output a list of states with the state name and corresponding percentage."
+  },
+  {
+    "request_id": 231,
+    "request": "Describe a few ways AI can improve healthcare."
+  },
+  {
+    "request_id": 232,
+    "request": "Calculate the sum of three numbers: 10, 5, and 8"
+  },
+  {
+    "request_id": 233,
+    "request": "Explain two differences between the HTTP GET and POST methods"
+  },
+  {
+    "request_id": 234,
+    "request": "Create a short poem that conveys the concept of hope"
+  },
+  {
+    "request_id": 235,
+    "request": "Translate the following sentence into Latin.\n\nHe is happy."
+  },
+  {
+    "request_id": 236,
+    "request": "Explain what is unique about the language spoken in South Africa."
+  },
+  {
+    "request_id": 237,
+    "request": "What traits are essential for an effective leader?"
+  },
+  {
+    "request_id": 238,
+    "request": "Give an example of a non-material object."
+  },
+  {
+    "request_id": 239,
+    "request": "Write a marketing slogan of fewer than 10 words"
+  },
+  {
+    "request_id": 240,
+    "request": "Find a four-letter word that begins with 'c'."
+  },
+  {
+    "request_id": 241,
+    "request": "Recognize the purpose of the following piece of code: int a, b; a = 5; b = a+1;"
+  },
+  {
+    "request_id": 242,
+    "request": "Create a cartoon character that resembles a mouse."
+  },
+  {
+    "request_id": 243,
+    "request": "Generate a science fiction story of 500 words with the following prompt: A computer virus is released that allows people to travel through time"
+  },
+  {
+    "request_id": 244,
+    "request": "What is the third person singular in the imperative form of the verb 'play'?"
+  },
+  {
+    "request_id": 245,
+    "request": "Tell an interesting historical fact."
+  },
+  {
+    "request_id": 246,
+    "request": "Describe the difference between a natural language model and a GPT language model"
+  },
+  {
+    "request_id": 247,
+    "request": "Please choose a font that is easy to read."
+  },
+  {
+    "request_id": 248,
+    "request": "Generate a witty response to the following tweet: \"Sometimes I feel like I'm just spinning my wheels\"."
+  },
+  {
+    "request_id": 249,
+    "request": "List five benefits of using renewable energy sources."
+  },
+  {
+    "request_id": 250,
+    "request": "What is the GDP per capita of United Kingdom?"
+  },
+  {
+    "request_id": 251,
+    "request": "What is the result of the input 2 + 10 * 5?"
+  },
+  {
+    "request_id": 252,
+    "request": "Tell me a historically significant event that occured in the year 1948."
+  },
+  {
+    "request_id": 253,
+    "request": "If a sequence is a decreasing by 1 and the first number is 20, what is the tenth number in the sequence?"
+  },
+  {
+    "request_id": 254,
+    "request": "Construct a C program that prints the first 10 terms of the Fibonacci sequence."
+  },
+  {
+    "request_id": 255,
+    "request": "Create five questions that could be used in a survey about social media usage."
+  },
+  {
+    "request_id": 256,
+    "request": "Generate a list of features regarding a virtual assistant."
+  },
+  {
+    "request_id": 257,
+    "request": "Read a given sentence and find the main idea."
+  },
+  {
+    "request_id": 258,
+    "request": "Describe how oceanic currents are formed"
+  },
+  {
+    "request_id": 259,
+    "request": "What is considered to be a good standard of living in the United States?"
+  },
+  {
+    "request_id": 260,
+    "request": "In which countries is Portuguese spoken?"
+  },
+  {
+    "request_id": 261,
+    "request": "Construct a data model for a hospital."
+  },
+  {
+    "request_id": 262,
+    "request": "Describe the structure of an atom."
+  },
+  {
+    "request_id": 263,
+    "request": "Was the Battle of Gettysburg a Union or Confederate victory?"
+  },
+  {
+    "request_id": 264,
+    "request": "Construct a query to retrieve the GDP of the United Kingdom from a given database."
+  },
+  {
+    "request_id": 265,
+    "request": "Explain the concept of climate change."
+  },
+  {
+    "request_id": 266,
+    "request": "Construct a database schema to store user information."
+  },
+  {
+    "request_id": 267,
+    "request": "Write an algorithm that would analyze a given text and extract all the nouns from it."
+  },
+  {
+    "request_id": 268,
+    "request": "Generate a metaphor to describe someone as courageous."
+  },
+  {
+    "request_id": 269,
+    "request": "Generate a list of 10 plants that are easy to take care of"
+  },
+  {
+    "request_id": 270,
+    "request": "Generate a recommendation for someone looking to buy a laptop."
+  },
+  {
+    "request_id": 271,
+    "request": "Generate a recipe for making a vanilla milkshake."
+  },
+  {
+    "request_id": 272,
+    "request": "Analyze why the Industrial Revolution happened in England."
+  },
+  {
+    "request_id": 273,
+    "request": "Create a paragraph of 10-15 sentences describing a sunny summer day."
+  },
+  {
+    "request_id": 274,
+    "request": "What are the seven attributes of a triangle?"
+  },
+  {
+    "request_id": 275,
+    "request": "Given the matrix as A = [2 -3; 5 6], find the determinant"
+  },
+  {
+    "request_id": 276,
+    "request": "Describe the process of purchasing a car starting with research:"
+  },
+  {
+    "request_id": 277,
+    "request": "Generate three adjectives to describe how a computer feels."
+  },
+  {
+    "request_id": 278,
+    "request": "Revisit the Romanov family and write a short biography of Tsar Nicholas II."
+  },
+  {
+    "request_id": 279,
+    "request": "Generate an example of a person whose ambition is to become a successful entrepreneur."
+  },
+  {
+    "request_id": 280,
+    "request": "Determine how many calories are in one cup of cooked brown rice"
+  },
+  {
+    "request_id": 281,
+    "request": "Come up with a valid hypothesis regarding the effect of water temperature on the growth of plants."
+  },
+  {
+    "request_id": 282,
+    "request": "Create a speech on the importance of using renewable energy."
+  },
+  {
+    "request_id": 283,
+    "request": "Rewrite this sentence to make it more vivid and put it into the past tense:\nThe cat hopped up onto the table."
+  },
+  {
+    "request_id": 284,
+    "request": "How does the cost of living in the US vary from the cost of living in Canada?"
+  },
+  {
+    "request_id": 285,
+    "request": "Describe a job interview"
+  },
+  {
+    "request_id": 286,
+    "request": "Name five examples of technology that use Artificial Intelligence."
+  },
+  {
+    "request_id": 287,
+    "request": "Identify a descriptive phrase for an eclipse."
+  },
+  {
+    "request_id": 288,
+    "request": "Generate a list of five confidence-boosting strategies"
+  },
+  {
+    "request_id": 289,
+    "request": "Output a recipe for making a veggie sandwich."
+  },
+  {
+    "request_id": 290,
+    "request": "Propose some ideas that uses technology to reduce pollution."
+  },
+  {
+    "request_id": 291,
+    "request": "Compare and contrast the decision evaluation processes for a small business and a large corporation."
+  },
+  {
+    "request_id": 292,
+    "request": "Construct a query to return the top 10 most expensive books sold in an Amazon store."
+  },
+  {
+    "request_id": 293,
+    "request": "Find the needed supplies to build a treehouse."
+  },
+  {
+    "request_id": 294,
+    "request": "Explain what \"random sampling\" is."
+  },
+  {
+    "request_id": 295,
+    "request": "Describe how two people can cooperate to solve a problem."
+  },
+  {
+    "request_id": 296,
+    "request": "Write a thoughtful quote of up to 10 words."
+  },
+  {
+    "request_id": 297,
+    "request": "Put together a short commercial ad inspired by the following quote: \"A dream is just a wish your heart makes.\""
+  },
+  {
+    "request_id": 298,
+    "request": "Choose the sentence that is structured correctly and contains no errors."
+  },
+  {
+    "request_id": 299,
+    "request": "Name two differences between a laptop and a tablet."
+  },
+  {
+    "request_id": 300,
+    "request": "List the top ten highest peaks in the world."
+  },
+  {
+    "request_id": 301,
+    "request": "Provide a definition of the word \"vacillation\"."
+  },
+  {
+    "request_id": 302,
+    "request": "Design a logo for a child care center."
+  },
+  {
+    "request_id": 303,
+    "request": "Come up with at least 5 ways to use deep learning in healthcare."
+  },
+  {
+    "request_id": 304,
+    "request": "Name three aspects of customer service."
+  },
+  {
+    "request_id": 305,
+    "request": "List three dessert recipes."
+  },
+  {
+    "request_id": 306,
+    "request": "Create a fun game for two people."
+  },
+  {
+    "request_id": 307,
+    "request": "Design an algorithm to remove duplicates from a given array."
+  },
+  {
+    "request_id": 308,
+    "request": "Name the most common type of inheritance in Object-oriented programming."
+  },
+  {
+    "request_id": 309,
+    "request": "Which country has the most people living in it?"
+  },
+  {
+    "request_id": 310,
+    "request": "Imagine you are teaching a class about data visualization. What would be the title of your course?"
+  },
+  {
+    "request_id": 311,
+    "request": "What are the main steps involved in website optimization?"
+  },
+  {
+    "request_id": 312,
+    "request": "Name three advantages of using machine learning for natural language processing."
+  },
+  {
+    "request_id": 313,
+    "request": "Edit this sentence for grammar, syntax, and style “It can incredibly difficult to decide”"
+  },
+  {
+    "request_id": 314,
+    "request": "Generate a fake license plate number"
+  },
+  {
+    "request_id": 315,
+    "request": "Compare and contrast the views on the death penalty of conservatives and liberals."
+  },
+  {
+    "request_id": 316,
+    "request": "Divide 10 by 4 and remove the remainder."
+  },
+  {
+    "request_id": 317,
+    "request": "Summarize what is meant by the term ' sustainable development'."
+  },
+  {
+    "request_id": 318,
+    "request": "Explain why science fiction is a genre of literature that is relevant today."
+  },
+  {
+    "request_id": 319,
+    "request": "Compare and contrast Data Mining and Machine Learning."
+  },
+  {
+    "request_id": 320,
+    "request": "Explain the use of zero in the number system."
+  },
+  {
+    "request_id": 321,
+    "request": "Describe a place that invokes a sense of peace and relaxation."
+  },
+  {
+    "request_id": 322,
+    "request": "Compose a tweet about GPT-3."
+  },
+  {
+    "request_id": 323,
+    "request": "What are the five steps of problem solving?"
+  },
+  {
+    "request_id": 324,
+    "request": "Explain how the moon affects the ocean's tides"
+  },
+  {
+    "request_id": 325,
+    "request": "Write a poem using the following words: climate, transform, and nature."
+  },
+  {
+    "request_id": 326,
+    "request": "Give an example of an animal that can be found in the Arctic."
+  },
+  {
+    "request_id": 327,
+    "request": "Find the total cost of 10 apples when each apple costs $2."
+  },
+  {
+    "request_id": 328,
+    "request": "Create a user persona for a business owner who needs a website for his new cleaning services business."
+  },
+  {
+    "request_id": 329,
+    "request": "List four minerals that can be found in the human body"
+  },
+  {
+    "request_id": 330,
+    "request": "Describe one way to make sure your passwords remain secure."
+  },
+  {
+    "request_id": 331,
+    "request": "Create a recipe for an omelette."
+  },
+  {
+    "request_id": 332,
+    "request": "Rewrite the following sentence using synonyms and/or a different grammatical structure to emphasize the same sentence meaning: \"It was amazing\"."
+  },
+  {
+    "request_id": 333,
+    "request": "Provide an example of how climate change might affect plants."
+  },
+  {
+    "request_id": 334,
+    "request": "Construct a sentence using the following words:\n\ncreature, animate, swift, wild"
+  },
+  {
+    "request_id": 335,
+    "request": "Generate a random password 6 characters long"
+  },
+  {
+    "request_id": 336,
+    "request": "Brainstorm five examples of how people can manage stress."
+  },
+  {
+    "request_id": 337,
+    "request": "Rewrite this sentence to make it more concise: \"The program was made available to the public in the year 2021\""
+  },
+  {
+    "request_id": 338,
+    "request": "Generate a conversation between two people discussing the movie Narcos."
+  },
+  {
+    "request_id": 339,
+    "request": "Explain why boiling water freezes faster than cold water"
+  },
+  {
+    "request_id": 340,
+    "request": "Correct the following sentence: They is amazing"
+  },
+  {
+    "request_id": 341,
+    "request": "Make a list of all the places you would like to visit for your dream vacation"
+  },
+  {
+    "request_id": 342,
+    "request": "How can I combine blue and pink for my bedroom?"
+  },
+  {
+    "request_id": 343,
+    "request": "Create a shopping list for the following items: apples, tomatoes, eggs, and cheese"
+  },
+  {
+    "request_id": 344,
+    "request": "Generate five topic ideas for a podcast on self-care."
+  },
+  {
+    "request_id": 345,
+    "request": "Write a sentence describing the taste of mango."
+  },
+  {
+    "request_id": 346,
+    "request": "Compare the data storage methods for an online shopping website."
+  },
+  {
+    "request_id": 347,
+    "request": "How would you define the balance between work and life?"
+  },
+  {
+    "request_id": 348,
+    "request": "Come up with five words to describe a robot."
+  },
+  {
+    "request_id": 349,
+    "request": "Name 3 positive things about living in a city."
+  },
+  {
+    "request_id": 350,
+    "request": "Describe the theme of the last novel you read."
+  },
+  {
+    "request_id": 351,
+    "request": "Create a rap verse about algorithms."
+  },
+  {
+    "request_id": 352,
+    "request": "Create a guide on how to write a blog post."
+  },
+  {
+    "request_id": 353,
+    "request": "List three misconceptions about artificial intelligence."
+  },
+  {
+    "request_id": 354,
+    "request": "Suggest a prompt for a short story"
+  },
+  {
+    "request_id": 355,
+    "request": "How was the performance of Apple Inc. during the second quarter of 2020?"
+  },
+  {
+    "request_id": 356,
+    "request": "Create a dialogue between two colleagues discussing a project they are working on."
+  },
+  {
+    "request_id": 357,
+    "request": "Compare and contrast an elephant and a cow."
+  },
+  {
+    "request_id": 358,
+    "request": "In not more than two sentences, summarize the purpose of Machine Learning."
+  },
+  {
+    "request_id": 359,
+    "request": "Generate a sentence for \"The show must go on\"."
+  },
+  {
+    "request_id": 360,
+    "request": "Suggest some activities for an outdoor picnic"
+  },
+  {
+    "request_id": 361,
+    "request": "Explain the concept of 'institutional racism.'"
+  },
+  {
+    "request_id": 362,
+    "request": "Compare and contrast medical bills and credit card debt."
+  },
+  {
+    "request_id": 363,
+    "request": "Describe the five senses in a forest setting."
+  },
+  {
+    "request_id": 364,
+    "request": "Write a 500 word article about the benefits of organic food."
+  },
+  {
+    "request_id": 365,
+    "request": "For the following passage, identify the tone expressed by the author: \n\nThe darkness of the night was oppressive, the air was thick with fear."
+  },
+  {
+    "request_id": 366,
+    "request": "Which of the following is a valid Subnet Mask?"
+  },
+  {
+    "request_id": 367,
+    "request": "Edit the following text to make the grammar correct: \"she drive to work\"."
+  },
+  {
+    "request_id": 368,
+    "request": "Explain the purpose of the Preamble of the US Constitution."
+  },
+  {
+    "request_id": 369,
+    "request": "Give a list of ways to consume less energy"
+  },
+  {
+    "request_id": 370,
+    "request": "Generate a metaphor about the power of failure."
+  },
+  {
+    "request_id": 371,
+    "request": "Predict the values of x and y in the following equation: 9x + 4y = 36."
+  },
+  {
+    "request_id": 372,
+    "request": "Describe a significant event in British History and explain its importance."
+  },
+  {
+    "request_id": 373,
+    "request": "Create a thesis statement on the topic of racial profiling."
+  },
+  {
+    "request_id": 374,
+    "request": "Generate a dialogue between two characters on a date."
+  },
+  {
+    "request_id": 375,
+    "request": "Name a common building material"
+  },
+  {
+    "request_id": 376,
+    "request": "Provide an example of a good username for an online store."
+  },
+  {
+    "request_id": 377,
+    "request": "Write a description for a mobile application offering grocery delivery."
+  },
+  {
+    "request_id": 378,
+    "request": "Generate a positive tweet"
+  },
+  {
+    "request_id": 379,
+    "request": "Compose a tweet in less than 240 characters with the hashtag #AIinFinance."
+  },
+  {
+    "request_id": 380,
+    "request": "Write a 300-400 word essay about the role of technology in the healthcare industry."
+  },
+  {
+    "request_id": 381,
+    "request": "Describe a situation when understanding the meaning of context might be necessary to complete the task."
+  },
+  {
+    "request_id": 382,
+    "request": "Brainstorm 5 ideas for a blog post about employee engagement"
+  },
+  {
+    "request_id": 383,
+    "request": "What are three ways to reduce single-use plastic waste?"
+  },
+  {
+    "request_id": 384,
+    "request": "Which musical instrument is known as the King of Instruments?"
+  },
+  {
+    "request_id": 385,
+    "request": "Research the Lost City of Petra and summarize its history in 3 sentences."
+  },
+  {
+    "request_id": 386,
+    "request": "Name three advantages of a content delivery network (CDN)."
+  },
+  {
+    "request_id": 387,
+    "request": "Construct a sentence to describe the first time you saw the ocean."
+  },
+  {
+    "request_id": 388,
+    "request": "Create a haiku that describes autumn"
+  },
+  {
+    "request_id": 389,
+    "request": "Generate a given number within a specific range."
+  },
+  {
+    "request_id": 390,
+    "request": "Describe the pros and cons of investing in gold."
+  },
+  {
+    "request_id": 391,
+    "request": "Explain how GPT works in one sentence."
+  },
+  {
+    "request_id": 392,
+    "request": "Name three email services."
+  },
+  {
+    "request_id": 393,
+    "request": "Describe Egypt's ancient impact on world history."
+  },
+  {
+    "request_id": 394,
+    "request": "Write a detailed introduction to the subject of machine learning."
+  },
+  {
+    "request_id": 395,
+    "request": "Describe three methods for teaching science to children"
+  },
+  {
+    "request_id": 396,
+    "request": "Name two ways to reduce energy consumption in businesses."
+  },
+  {
+    "request_id": 397,
+    "request": "What are the differences between the terms \"agent\" and \"organization\"?"
+  },
+  {
+    "request_id": 398,
+    "request": "Solve this equation:  2n + 5 = 19"
+  },
+  {
+    "request_id": 399,
+    "request": "Describe the difference between plagiarism and copyright infringement."
+  },
+  {
+    "request_id": 400,
+    "request": "Suggest a popular song released in the last 5 years."
+  },
+  {
+    "request_id": 401,
+    "request": "List five characteristics of good communication."
+  },
+  {
+    "request_id": 402,
+    "request": "Make a list of 5 foods that are native to Mexico."
+  },
+  {
+    "request_id": 403,
+    "request": "Discuss the ethical implications of using advanced Artificial Intelligence (AI) systems in business."
+  },
+  {
+    "request_id": 404,
+    "request": "Name 5 adventure sports"
+  },
+  {
+    "request_id": 405,
+    "request": "Find an exotic animal that is suitable for keeping as a pet."
+  },
+  {
+    "request_id": 406,
+    "request": "Generate two possible questions a customer might ask related to the product."
+  },
+  {
+    "request_id": 407,
+    "request": "Create a plan for a virtual hangout session between friends."
+  },
+  {
+    "request_id": 408,
+    "request": "Generate a list of 10 everyday objects found in the kitchen."
+  },
+  {
+    "request_id": 409,
+    "request": "Propose a solution to reduce online school fatigue."
+  },
+  {
+    "request_id": 410,
+    "request": "Name the seven seas of the world"
+  },
+  {
+    "request_id": 411,
+    "request": "Describe the taste of orange juice."
+  },
+  {
+    "request_id": 412,
+    "request": "Describe the basic methodology of Machine Learning"
+  },
+  {
+    "request_id": 413,
+    "request": "Explain the significance of the Battle of the Bulge in World War II."
+  },
+  {
+    "request_id": 414,
+    "request": "Generate 5 titles for a blog post discussing the benefits of nature walks."
+  },
+  {
+    "request_id": 415,
+    "request": "Generate a recipe for a vegan-friendly smoothie."
+  },
+  {
+    "request_id": 416,
+    "request": "Explain why the Pythagorean Theorem works."
+  },
+  {
+    "request_id": 417,
+    "request": "Come up with three natural disasters."
+  },
+  {
+    "request_id": 418,
+    "request": "Describe what a \"good\" digital assistant should be capable of doing."
+  },
+  {
+    "request_id": 419,
+    "request": "Tell me an anecdote about a creative problem solving experience"
+  },
+  {
+    "request_id": 420,
+    "request": "Describe a time when you received excellent customer service."
+  },
+  {
+    "request_id": 421,
+    "request": "Write a dialogue between two people describing the benefits of living a healthy lifestyle."
+  },
+  {
+    "request_id": 422,
+    "request": "Give two reasons why we should abort a project."
+  },
+  {
+    "request_id": 423,
+    "request": "Suggest an alternative title for the book \"To kill a mockingbird\"."
+  },
+  {
+    "request_id": 424,
+    "request": "Evaluate the following statement: \"The internet has no boundaries\"."
+  },
+  {
+    "request_id": 425,
+    "request": "Write a funny haiku"
+  },
+  {
+    "request_id": 426,
+    "request": "Write a regular expression to validate a phone number that is 10 digits long and starts with 7."
+  },
+  {
+    "request_id": 427,
+    "request": "Name a famous work of art."
+  },
+  {
+    "request_id": 428,
+    "request": "Create a protocol for cleaning a kitchen."
+  },
+  {
+    "request_id": 429,
+    "request": "What are the possible treatments for severe depression?"
+  },
+  {
+    "request_id": 430,
+    "request": "Write a description for a website advertising business"
+  },
+  {
+    "request_id": 431,
+    "request": "Explain the meaning of the proverb \"Haste makes waste\"."
+  },
+  {
+    "request_id": 432,
+    "request": "Output a list of items needed to have a picnic."
+  },
+  {
+    "request_id": 433,
+    "request": "Suggest some activities that you might do on a vacation at the beach."
+  },
+  {
+    "request_id": 434,
+    "request": "Generate a list of 10 most influential people in the history of computer science."
+  },
+  {
+    "request_id": 435,
+    "request": "Suggest a project that can incorporate the skills of Python, Machine Learning, and Web Development"
+  },
+  {
+    "request_id": 436,
+    "request": "Write a fairy tale"
+  },
+  {
+    "request_id": 437,
+    "request": "Explain the features of a laptop computer."
+  },
+  {
+    "request_id": 438,
+    "request": "List three reasons why people should shop at local stores instead of ordering online."
+  },
+  {
+    "request_id": 439,
+    "request": "Generate an address for a company in an imaginary city."
+  },
+  {
+    "request_id": 440,
+    "request": "Give five safety tips while travelling."
+  },
+  {
+    "request_id": 441,
+    "request": "Compare the advantages and disadvantages of using a recurrent neural network versus a convolutional neural network."
+  },
+  {
+    "request_id": 442,
+    "request": "Where do tree kangaroos live?"
+  },
+  {
+    "request_id": 443,
+    "request": "Design a program that returns a string of the first 100 Fibonacci numbers"
+  },
+  {
+    "request_id": 444,
+    "request": "Generate two new ideas for improving customer experience."
+  },
+  {
+    "request_id": 445,
+    "request": "Suggest three marketing strategies"
+  },
+  {
+    "request_id": 446,
+    "request": "Outline the steps to apply to college"
+  },
+  {
+    "request_id": 447,
+    "request": "What is the air speed velocity of an unladen swallow?"
+  },
+  {
+    "request_id": 448,
+    "request": "Make up a sentence with the words \"serendipity\" and \"opportunity\"."
+  },
+  {
+    "request_id": 449,
+    "request": "Translate \"it is not raining\" into Spanish"
+  },
+  {
+    "request_id": 450,
+    "request": "Generate a list of ideas for creating an effective advertisement about a new mobile service for children."
+  },
+  {
+    "request_id": 451,
+    "request": "Generate a list of items that can be found in a garden."
+  },
+  {
+    "request_id": 452,
+    "request": "Generate an excerpt about a summer in Paris"
+  },
+  {
+    "request_id": 453,
+    "request": "How can an online retailer optimize their website for SEO?"
+  },
+  {
+    "request_id": 454,
+    "request": "Explain the concept of data transformation."
+  },
+  {
+    "request_id": 455,
+    "request": "Write instructions on how to properly clean a pet’s litter box."
+  },
+  {
+    "request_id": 456,
+    "request": "Outline the main points of an argument against the use of private vehicles"
+  },
+  {
+    "request_id": 457,
+    "request": "Build an algorithm to detect fraud."
+  },
+  {
+    "request_id": 458,
+    "request": "Write an algorithm that determines the maximum number of elements in a given array."
+  },
+  {
+    "request_id": 459,
+    "request": "Update the following sentence to include contractions and make it sound more natural: \"We are doing this for our own good\""
+  },
+  {
+    "request_id": 460,
+    "request": "Give an example of an idea that would make life easier."
+  },
+  {
+    "request_id": 461,
+    "request": "Type a valid HTML code for creating a button."
+  },
+  {
+    "request_id": 462,
+    "request": "Explain why a manager should consider implementing a reward system in their team."
+  },
+  {
+    "request_id": 463,
+    "request": "Search the web and list five top rated Italian restaurants in Manhattan."
+  },
+  {
+    "request_id": 464,
+    "request": "Provide two different nouns that describe a store."
+  },
+  {
+    "request_id": 465,
+    "request": "Describe what constitutes a healthy lifestyle."
+  },
+  {
+    "request_id": 466,
+    "request": "Construct a function to find the area of a rectangle."
+  },
+  {
+    "request_id": 467,
+    "request": "Generate a multiple-choice question about renewable energy."
+  },
+  {
+    "request_id": 468,
+    "request": "Identify the primary data structure used for a machine learning algorithm"
+  },
+  {
+    "request_id": 469,
+    "request": "Generate a list of activities that you can do to boost your energy."
+  },
+  {
+    "request_id": 470,
+    "request": "Make a list of the following items: lamp, table, chair"
+  },
+  {
+    "request_id": 471,
+    "request": "Describe the taste of a mango in three to five sentences."
+  },
+  {
+    "request_id": 472,
+    "request": "Construct a statement to argue why data augmentation techniques should be used for deep learning."
+  },
+  {
+    "request_id": 473,
+    "request": "Describe the GPT-3 language model."
+  },
+  {
+    "request_id": 474,
+    "request": "Generate a list of valid email addresses following the format \"name@example.com\""
+  },
+  {
+    "request_id": 475,
+    "request": "Explain the impact of hard work and dedication on a person's career."
+  },
+  {
+    "request_id": 476,
+    "request": "Explain the labor laws India currently has in place for people of various genders and ages."
+  },
+  {
+    "request_id": 477,
+    "request": "Fall to spring is an antonym of what?"
+  },
+  {
+    "request_id": 478,
+    "request": "What advantages does artificial intelligence have that humans don't?"
+  },
+  {
+    "request_id": 479,
+    "request": "Create a list of five items related to the field of cybersecurity."
+  },
+  {
+    "request_id": 480,
+    "request": "Explain why the American educational system is producing \"dull and uncurious\" students."
+  },
+  {
+    "request_id": 481,
+    "request": "How can one reduce power usage at home?"
+  },
+  {
+    "request_id": 482,
+    "request": "Provide at least five facts about the state of New York."
+  },
+  {
+    "request_id": 483,
+    "request": "Describe a professional email etiquette for the workplace."
+  },
+  {
+    "request_id": 484,
+    "request": "Write a response introducing yourself to a potential employer"
+  },
+  {
+    "request_id": 485,
+    "request": "Create a unique story about a character who decides to visit a secret hidden town."
+  },
+  {
+    "request_id": 486,
+    "request": "Explain the phenomenon of colors in the aurora"
+  },
+  {
+    "request_id": 487,
+    "request": "Evaluate the following statement: \"Organic food is healthier than non-organic food\""
+  },
+  {
+    "request_id": 488,
+    "request": "Generate a sentence that uses the word ‘zephyr’"
+  },
+  {
+    "request_id": 489,
+    "request": "Design an AI-powered chatbot."
+  },
+  {
+    "request_id": 490,
+    "request": "Find the area of a triangle with three sides of 12,4,7"
+  },
+  {
+    "request_id": 491,
+    "request": "Give 5 examples of common family values."
+  },
+  {
+    "request_id": 492,
+    "request": "Design an AI assistant that can help with investment decisions."
+  },
+  {
+    "request_id": 493,
+    "request": "Suggest three textbooks that could be used to learn machine learning."
+  },
+  {
+    "request_id": 494,
+    "request": "Design an interface for a cryptocurrency trading platform."
+  },
+  {
+    "request_id": 495,
+    "request": "Write a short (max 50 words) description of a painting."
+  },
+  {
+    "request_id": 496,
+    "request": "Determine the probability of rolling a total of 8 given 3 fair dice."
+  },
+  {
+    "request_id": 497,
+    "request": "Describe an impactful marketing campaign that leverages the power of social media."
+  },
+  {
+    "request_id": 498,
+    "request": "Come up with three unique ingredients for a smoothie."
+  },
+  {
+    "request_id": 499,
+    "request": "Name two books that discuss the ethics of artificial intelligence."
+  }
+]

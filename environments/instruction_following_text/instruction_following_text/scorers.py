@@ -11,6 +11,15 @@ from .scorer_types import ConstraintScore, JudgeScore, Scorer, ScorerName
 from .types import JudgeView, Problem
 
 
+class JudgeUnparseableError(ValueError):
+    """Raised when the judge returns no parseable score after all attempts. Carries the full
+    per-attempt provider responses so the caller can persist the trace before failing loud."""
+
+    def __init__(self, message: str, attempts: list[dict[str, Any]]):
+        super().__init__(message)
+        self.attempts = attempts
+
+
 def _msg_field(m: Any, key: str) -> Any:
     return m.get(key) if isinstance(m, dict) else getattr(m, key, None)
 
@@ -128,6 +137,7 @@ class JudgeScorer(Scorer):
                 )
             except ValueError:
                 last_raw = raw
-        raise ValueError(
-            f"judge returned no parseable 0-10 score after {self.judge_attempts} attempts; last={last_raw!r}"
+        raise JudgeUnparseableError(
+            f"judge returned no parseable 0-10 score after {self.judge_attempts} attempts; last={last_raw!r}",
+            attempts=attempts,
         )

@@ -1220,12 +1220,21 @@ class Environment(ABC):
         state_columns: list[str] | None = None,
         save_results: bool = False,
         max_concurrent: int = -1,
+        restore_columns: list[str] | None = None,
     ) -> GenerateOutputs:
         """Replay saved rollouts and re-run ONLY the rubric (no actor calls).
 
         Loads rollouts from ``source_results_path`` (a dir with results.jsonl), rebuilds
         each State, re-runs env.setup_state + scoring, and returns/saves new outputs scored
         by THIS env's rubric (e.g. a different judge/view configured at load_environment).
+
+        ``state_columns`` are the columns SAVED to the new results (e.g. fresh ``scorers``).
+        ``restore_columns`` are the saved columns reloaded INTO the replay state before scoring
+        — keep these to rollout inputs/provenance (e.g. ``raw_responses``, ``message_turns``).
+        It must NOT include scoring-output columns (``scorers``/``scorer_errors``): rubrics
+        typically append to those, so restoring stale entries silently corrupts the rescore
+        (the old score lingers ahead of the fresh one). Defaults to restoring nothing beyond
+        the core rollout fields (prompt/completion/answer/info), which is correct for most envs.
 
         Takes NO actor model/client by design — the actor is fixed by the saved file and is
         never re-run; the builder's model field is a literal "(rescore)" sentinel.
@@ -1254,7 +1263,7 @@ class Environment(ABC):
         )
 
         async def rescore_one(output) -> RolloutOutput:
-            state = output_to_state(output, state_columns=state_columns)
+            state = output_to_state(output, state_columns=restore_columns)
             updated = await self.setup_state(state)
             if updated is not None:
                 state = updated

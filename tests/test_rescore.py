@@ -56,3 +56,26 @@ def test_rescore_replays_and_rescores_without_client(tmp_path):
     out = asyncio.run(env.rescore(source_results_path=run_dir, save_results=False))
     rewards = {o["example_id"]: o["reward"] for o in out["outputs"]}
     assert rewards == {0: 3.0, 1: 2.0}  # recomputed from completion length, not the saved 999.0
+
+
+def test_rescore_does_not_inherit_saved_scorer_outputs(tmp_path):
+    """A rubric that appends to state['scorers'] must start from a CLEAN list on rescore — the
+    stale 'scorers' saved in the source results must NOT be restored (else the old entry lingers
+    ahead of the fresh one). Guards the restore_columns/state_columns separation."""
+    from datasets import Dataset
+
+    def _appender(state, completion, **kwargs) -> float:
+        state.setdefault("scorers", []).append("FRESH")
+        return 1.0
+
+    ds = Dataset.from_list([{"question": "q", "answer": ""}])
+    env = vf.SingleTurnEnv(dataset=ds, rubric=vf.Rubric(funcs=[_appender], weights=[1.0]))
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    save_outputs([{"example_id": 0, "prompt": [{"role": "user", "content": "q"}],
+                   "completion": [{"role": "assistant", "content": "a"}], "info": {}, "answer": "",
+                   "reward": 0.0, "timing": {}, "is_completed": True, "is_truncated": False,
+                   "metrics": {}, "scorers": ["STALE"]}], run_dir)
+
+    out = asyncio.run(env.rescore(source_results_path=run_dir, state_columns=["scorers"], save_results=False))
+    assert out["outputs"][0]["scorers"] == ["FRESH"]  # stale entry neither restored nor appended-to

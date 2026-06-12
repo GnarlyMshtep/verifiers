@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import asdict
-from typing import Any, Sequence
+from typing import Sequence
 
 import dacite
 import verifiers as vf
@@ -70,7 +70,10 @@ class ComposedEnv(vf.MultiTurnEnv):
                     problem=state["_problem"], state=state,
                 )
             except JudgeUnparseableError as e:
-                # Preserve the full per-attempt trace, then fail loud (no fabricated score).
+                # verifiers' Rubric coerces any reward-fn exception to 0.0 (it cannot truly
+                # error the rollout), so a raise alone would silently fabricate a 0 score.
+                # We record the full per-attempt trace to scorer_errors for post-hoc detection;
+                # the launcher surfaces a loud run-level warning when scorer_errors is non-empty.
                 state.setdefault("scorer_errors", []).append(
                     {"name": scorer.name.value, "error": str(e), "attempts": e.attempts}
                 )

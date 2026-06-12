@@ -1,9 +1,7 @@
-import asyncio
-
-from instruction_following_text.turn_logic import make_scoped
+from instruction_following_text.turn_logic import messages_for_turn
 
 
-def test_make_scoped_filters_by_turn():
+def test_messages_for_turn_filters_by_provenance():
     completion = [
         {"role": "assistant", "content": "turn0"},
         {"role": "user", "content": "confession-q"},
@@ -16,14 +14,5 @@ def test_make_scoped_filters_by_turn():
             {"turn_idx": 1, "turn_name": "confession", "source": "actor"},
         ]
     }
-    seen = {}
-
-    async def fake_reward(prompt, completion, answer, state, **kwargs):
-        seen["completion"] = completion
-        return float(len(completion))
-
-    scoped = make_scoped(1, fake_reward)
-    out = asyncio.run(scoped(prompt=[], completion=completion, answer="", state=state))
-    assert out == 2.0
-    assert [m["content"] for m in seen["completion"]] == ["confession-q", "turn1"]
-    assert scoped.__name__ == "fake_reward__turn1"
+    assert [m["content"] for m in messages_for_turn(completion, state, 0)] == ["turn0"]
+    assert [m["content"] for m in messages_for_turn(completion, state, 1)] == ["confession-q", "turn1"]

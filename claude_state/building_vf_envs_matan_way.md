@@ -21,6 +21,15 @@
   - `<pkg>/env.py` — `load_environment`, ONE config-driven env (judge view, difficulty filter,
     weights via config — no near-duplicate env classes).
   - `<pkg>/data/` (small reviewable json); `tests/` (pytest plain fns; ONLY pure logic).
+- **The env package contains ONLY env code.** `environments/<name>/<pkg>/` holds the env itself
+  (types, prompts, constraints, dataset, scorer_types, scorers, turn_logic, env, data, tests).
+  Anything downstream of the env — store integration, flattening, plotting, stats, registration,
+  analysis — does NOT live in the env package. It lives with the consumer (prime-rl) under
+  `claude_scripts/analysis_scripts/<env>/` (its own importable package, e.g.
+  `analysis_scripts.instruction_following_text`). Rule of thumb: if it imports the env to GENERATE
+  or DEFINE rollouts/scores, it's env code; if it CONSUMES saved results/registered data, it's
+  analysis code and belongs in `analysis_scripts/<env>/`. Do NOT name the analysis package after
+  the env module (import collision) — nest it under `analysis_scripts/`.
 - Install into the verifiers venv: `uv pip install --python .venv/bin/python -e environments/<name>`
   (python 3.13 at `deps/verifiers/.venv`; repo conda env is 3.10 and won't work).
 - The launcher/scripts need `tyro` + `python-dotenv` in the verifiers venv:
@@ -84,6 +93,22 @@
 - Custom dated dir + sidecar config: don't fight `path_utils` — a launcher calls
   `env.evaluate(results_path=...)` and writes only the deltas vf's metadata.json lacks
   (datetime, actor backend, short_desc). See `claude_scripts/run_instruction_eval.py`.
+
+## Rescoring (replay-and-rescore, no regeneration)
+- `Environment.rescore(source_results_path, results_path=..., state_columns=..., save_results=...)`
+  replays saved rollouts and re-runs ONLY the rubric — no actor calls. It loads results.jsonl,
+  rebuilds each `State` via `output_to_state` (the inverse of `state_to_output`), runs
+  `env.setup_state` (rebuilds `_problem` etc.) + `_score_state`, and writes new outputs.
+- To score the SAME saved rollouts a different way, construct the env differently and rescore:
+  e.g. `load_environment(judge_view=..., judge_model=...)` then `.rescore(<run>)`. ConstraintScorer
+  recomputes identically; JudgeScorer scores per the new view/judge. CoT views work because saved
+  completions keep `reasoning_content`.
+- **`rescore` never takes an actor model/client** — the actor is fixed by the saved file; the
+  builder's model field is a literal `"(rescore)"` sentinel. Downstream registration must NOT trust
+  a hand-passed actor: derive the actor tag from the source run's `metadata.json`/`config.json` and
+  RAISE on mismatch if an actor is also passed explicitly (you cannot silently mislabel whose
+  rollouts these are). Only `independent` (per-rollout) scoring is supported; group-reward rubrics
+  raise.
 
 ## Gotchas learned
 - **Weights:** `MultiTurnEnv.__init__` wraps your `vf.Rubric` in a `RubricGroup` (adds a monitor

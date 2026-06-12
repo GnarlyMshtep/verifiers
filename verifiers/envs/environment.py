@@ -674,7 +674,11 @@ class Environment(ABC):
             model,
             sampling_args,
         )
+        await self._score_state(state)
+        return state
 
+    async def _score_state(self, state: State) -> State:
+        """Run rubric scoring on a state that already has its rollout messages."""
         state["timing"].scoring.start = time.time()
         if self.score_rollouts:
             await self.rubric.score_rollout(state)
@@ -1208,6 +1212,68 @@ class Environment(ABC):
             on_log=on_log,
             **kwargs,
         )
+
+    async def rescore(
+        self,
+        source_results_path: Path,
+        results_path: Path | None = None,
+        state_columns: list[str] | None = None,
+        save_results: bool = False,
+        max_concurrent: int = -1,
+    ) -> GenerateOutputs:
+        """Replay saved rollouts and re-run ONLY the rubric (no actor calls).
+
+        Loads rollouts from ``source_results_path`` (a dir with results.jsonl), rebuilds
+        each State, re-runs env.setup_state + scoring, and returns/saves new outputs scored
+        by THIS env's rubric (e.g. a different judge/view configured at load_environment).
+
+        Takes NO actor model/client by design — the actor is fixed by the saved file and is
+        never re-run; the builder's model field is a literal "(rescore)" sentinel.
+        """
+        from verifiers.utils.save_utils import output_to_state
+
+        if self.rubric.has_group_rewards:
+            raise NotImplementedError(
+                "rescore() supports independent (per-rollout) scoring only"
+            )
+
+        saved = load_outputs(source_results_path)
+        sem = await maybe_semaphore(max_concurrent)
+
+        builder = GenerateOutputsBuilder(
+            env_id=self.env_id,
+            env_args=self.env_args,
+            model="(rescore)",
+            client=None,
+            num_examples=len({o["example_id"] for o in saved}),
+            rollouts_per_example=1,
+            state_columns=state_columns,
+            sampling_args={},
+            results_path=results_path,
+            pass_threshold=self.pass_threshold,
+        )
+
+        async def rescore_one(output) -> RolloutOutput:
+            state = output_to_state(output, state_columns=state_columns)
+            updated = await self.setup_state(state)
+            if updated is not None:
+                state = updated
+            await self._score_state(state)
+            return await asyncio.to_thread(state_to_output, state, state_columns or [])
+
+        tasks = [asyncio.create_task(with_sem(sem, rescore_one(o))) for o in saved]
+        for coro in asyncio.as_completed(tasks):
+            builder.add_outputs([await coro])
+
+        results = builder.build(sort_by_example_id=True)
+        if save_results and results_path is not None:
+            await asyncio.to_thread(
+                save_outputs, results["outputs"], builder.results_path
+            )
+            await asyncio.to_thread(
+                save_metadata, results["metadata"], builder.results_path
+            )
+        return results
 
     def evaluate_sync(
         self,

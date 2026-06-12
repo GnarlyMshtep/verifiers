@@ -18,6 +18,7 @@ from verifiers.types import (
     GenerateOutputs,
     Response,
     RolloutOutput,
+    RolloutTiming,
     SamplingArgs,
     State,
     TokenUsage,
@@ -191,6 +192,34 @@ def get_hf_hub_dataset_name(outputs: GenerateOutputs) -> str:
         + str(metadata["rollouts_per_example"])
     )
     return dataset_name
+
+
+def output_to_state(
+    output: "RolloutOutput | dict", state_columns: list[str] | None = None
+) -> State:
+    """Rebuild a minimal State from a saved RolloutOutput for replay/rescoring.
+
+    Restores the rollout's messages, answer, info, example_id and any requested
+    state_columns. Does NOT recompute env-specific derived fields — call
+    ``env.setup_state(state)`` after this to rebuild those (e.g. parsed problem).
+    """
+    state = State()
+    state["input"] = {
+        "example_id": output["example_id"],
+        "prompt": output.get("prompt"),
+        "answer": output.get("answer", ""),
+        "info": output.get("info", {}),
+    }
+    state["completion"] = output.get("completion")
+    state["timing"] = RolloutTiming()
+    state["is_completed"] = True
+    state["is_truncated"] = output.get("is_truncated", False)
+    state["metrics"] = {}
+    state["reward"] = 0.0
+    for col in state_columns or []:
+        if col in output:
+            state[col] = output[col]
+    return state
 
 
 def state_to_output(

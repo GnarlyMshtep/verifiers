@@ -4,18 +4,25 @@ import os
 
 from openai import AsyncOpenAI
 
+from verifiers.envs._m_ import ComposedEnv, JudgeScorer, JudgeView, Scene
+
 from .dataset import build_dataset
 from .prompts import MONITOR_PROMPTS, PROMPTS, PromptKey
-from .scorer_types import JudgeConfig
-from .scorers import ConstraintScorer, JudgeScorer
-from .turn_logic import ComposedEnv, Turn
-from .types import Difficulty, JudgeView, MonitorPrompt, TurnName
+from .scorer_types import JudgeConfig, ScorerName
+from .scorers import ConstraintScorer
+from .types import ConstraintName, Difficulty, MonitorPrompt, SceneName, TaskInfo
 
 
-class TaskTurn(Turn):
-    """Turn 0: the instruction-following task. Pre-entered by the dataset prompt."""
+class TaskScene(Scene):
+    """Scene 0: the instruction-following task. Opened by the dataset prompt."""
 
-    name = TurnName.TASK
+    name = SceneName.TASK
+
+    async def enter(self, state):
+        return []  # opened by the dataset prompt
+
+    async def is_complete(self, state) -> bool:
+        return True
 
 
 def load_environment(
@@ -52,6 +59,7 @@ def load_environment(
     scorers = [
         ConstraintScorer(weight=constraint_weight),
         JudgeScorer(
+            name=ScorerName.JUDGE_REQUEST_FOLLOWED,
             view=judge_cfg.view,
             judge_client=judge_client,
             judge_model=judge_cfg.model,
@@ -62,8 +70,10 @@ def load_environment(
     ]
 
     return ComposedEnv(
-        turns=[TaskTurn()],
+        scenes=[TaskScene()],
         scorers=scorers,
+        info_type=TaskInfo,
+        info_enums=(ConstraintName, Difficulty),
         dataset=dataset,
         system_prompt=PROMPTS[PromptKey.SYSTEM],
         max_turns=4,

@@ -23,6 +23,14 @@ def test_strict_format_repeated_field_ok():
     assert strict_format("{a}-{a}", a="X") == "X-X"
 
 
+def test_strict_format_conversion_spec_ok():
+    assert strict_format("{x!r}", x="a") == "'a'"
+
+
+def test_strict_format_format_spec_ok():
+    assert strict_format("{x:>5}", x="a") == "    a"
+
+
 def test_write_once_reads():
     d = write_once(x="one", y="two")
     assert d["x"] == "one" and d["y"] == "two"

@@ -11,6 +11,7 @@ def strict_format(template: str, /, **kwargs: object) -> str:
     No silent partial fills: a renamed/dropped placeholder fails at call time, not silently.
     Repeated fields are fine. Positional fields ({} / {0}) are rejected — use named fields."""
     fields: set[str] = set()
+    # Limitation: nested format specs like {x:{w}} are not introspected; the inner field would be flagged unused.
     for _literal, field_name, _spec, _conv in Formatter().parse(template):
         if field_name is None:
             continue

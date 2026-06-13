@@ -16,9 +16,16 @@ class Scene(ABC):
     (the framework feeds `state["prompt"]` to the actor), so `scenes[0].enter()` is never
     called — a scene-0 class implements `enter` as an explicit `return []` ("opened by the
     dataset prompt"). Both methods are abstract on purpose: a silent `enter()->[]` default is
-    wrong for scenes >=1 (it hands the actor the floor with no new env message)."""
+    wrong for scenes >=1 (it hands the actor the floor with no new env message).
+
+    Set `trainable=False` so `ComposedEnv` zeros this scene's completion_mask (loss-free
+    context — e.g. the task answer in confession training)."""
 
     name: str
+    trainable: bool
+
+    def __init__(self, *, trainable: bool = True) -> None:
+        self.trainable = trainable
 
     @abstractmethod
     async def enter(self, state: State) -> Messages:

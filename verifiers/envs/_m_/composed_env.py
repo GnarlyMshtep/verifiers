@@ -40,10 +40,12 @@ class ComposedEnv(vf.MultiTurnEnv):
         *,
         info_type: type,
         info_enums: Sequence[type] = (),
+        log_token_masks: bool = False,
         **kwargs,
     ):
         self.scenes = list(scenes)
         self.scorers = list(scorers)
+        self.log_token_masks = log_token_masks
         self.info_type = info_type
         self.info_dacite = dacite.Config(cast=list(info_enums))
         fns: list[RewardFunc] = [self._make_reward(s) for s in self.scorers]
@@ -91,6 +93,34 @@ class ComposedEnv(vf.MultiTurnEnv):
         s = self.scenes[state["scene_idx"]]
         prov = MsgProvenance(scene_idx=state["scene_idx"], scene_name=s.name, source="actor")
         state["message_scenes"].append(asdict(prov))
+        await self._apply_scene_mask_and_log(state)
+
+    async def _apply_scene_mask_and_log(self, state) -> None:
+        """Zero completion_mask for a non-trainable scene's step (loss-free context), and — when
+        log_token_masks is set — record a per-step attribution row proving which tokens are loss-bearing."""
+        scene = self.scenes[state["scene_idx"]]
+        step = state["trajectory"][-1]
+        tokens = step.get("tokens")
+        if tokens is not None and not scene.trainable:
+            tokens["completion_mask"] = [0] * len(tokens["completion_mask"])
+        if self.log_token_masks:
+            n_tokens = len(tokens["completion_mask"]) if tokens is not None else None
+            n_trainable = sum(tokens["completion_mask"]) if tokens is not None else None
+            completion = step.get("completion") or []
+            preview = ""
+            for m in completion:
+                c = m.get("content") if isinstance(m, dict) else getattr(m, "content", None)
+                if c:
+                    preview = c[:120]
+                    break
+            state.setdefault("token_mask_log", []).append({
+                "scene_idx": state["scene_idx"],
+                "scene_name": scene.name,
+                "trainable": scene.trainable,
+                "n_tokens": n_tokens,
+                "n_trainable": n_trainable,
+                "text_preview": preview,
+            })
 
     @vf.stop
     async def all_scenes_done(self, state: State) -> bool:

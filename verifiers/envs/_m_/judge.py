@@ -6,7 +6,7 @@ from enum import StrEnum
 from typing import Any, Callable
 
 from openai import AsyncOpenAI
-from verifiers.types import Messages, State
+from verifiers.types import Messages
 
 from .scoring import Scorer, ScorerResult
 

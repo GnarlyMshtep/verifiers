@@ -7,7 +7,6 @@ import dacite
 import verifiers as vf
 from verifiers.clients.openai_chat_completions_client import OpenAIChatCompletionsClient
 from verifiers.types import Messages, RewardFunc, State
-from verifiers.utils.message_utils import concat_messages
 
 from .judge import JudgeUnparseableError
 from .scene import MsgProvenance, Scene

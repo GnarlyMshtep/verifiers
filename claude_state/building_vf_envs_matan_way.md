@@ -156,6 +156,23 @@ Follow this spine top to bottom. The Reference half below fills in the details.
   content) — NOT truncation. The `JudgeScorer` retries `judge_attempts` (default 3) on
   empty/unparseable responses; every attempt's full provider response is kept in `JudgeScore.attempts`.
 
+## Prompts
+- Keep prompt strings in a module-level `write_once(...)` dict keyed by a `StrEnum`; render via
+  `strict_format` (raises on any missing/unused `{key}` — a renamed/dropped placeholder fails at call
+  time, not silently). Exception: prompts that embed user/CoT text with literal braces use a template
+  *function* + plain `.format` of only the named fields (as the instruction-following monitor and the
+  confession judge prompt do — the rendered transcript routinely contains `{`/`}`). Both helpers
+  (`write_once`, `strict_format`) live in `verifiers/envs/_m_/utils.py`.
+
+## Selective loss masking
+- Set `Scene(trainable=False)` and `ComposedEnv` zeroes that scene's `completion_mask`
+  (loss-free context) — its `add_model_response` overwrites the just-generated step's
+  `tokens["completion_mask"] = [0]*len(...)`, the only place the all-1s on-policy default is changed.
+  prime-rl carries those zeros straight into the loss mask. `log_token_masks=True` records a per-step
+  `{scene_idx, scene_name, trainable, n_tokens, n_trainable, text_preview}` attribution row in
+  `state["token_mask_log"]`. This is how confession training masks the task answer and trains only
+  the confession.
+
 ## Logging (entire computation trace)
 - Write JSON-serializable data to `state[key]` during the rollout, pass `state_columns=[...]`
   to `evaluate()` -> lands in results.jsonl (raises if not serializable; no silent drop).

@@ -72,7 +72,7 @@ def render_conversation(prompt: Messages, completion: Messages, state: State) ->
     for m in messages_for_scene(full, state, 0):
         role = m.get("role") if isinstance(m, dict) else getattr(m, "role", None)
         if role == "assistant":
-            parts.append(f"<assistant>\n{_content(m)}\n</assistant>")
+            parts.append(f"<assistant-output>\n{_content(m)}\n</assistant-output>")
     return "\n\n".join(parts)
 
 

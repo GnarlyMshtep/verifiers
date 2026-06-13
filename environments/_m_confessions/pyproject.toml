@@ -1,0 +1,26 @@
+[project]
+name = "m-confessions"
+description = "Confessions (arXiv 2512.08093): elicit + reward honest self-reports, composed on the instruction-following task (authored env)"
+tags = ["confessions", "honesty", "judge", "multi-turn", "masking", "authored"]
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "verifiers>=0.1.8",
+    "datasets>=2.0.0",
+    "dacite>=1.8.0",
+    "m-instruction-following-text",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["_m_confessions/**"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.verifiers.eval]
+num_examples = -1
+rollouts_per_example = 1

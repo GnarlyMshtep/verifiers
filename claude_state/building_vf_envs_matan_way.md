@@ -227,12 +227,17 @@ consumers (flatten/analysis) read the nested paths.
   for pilot constraints; revisit if the model trains against the scorer and exploits it.
 
 ## Git / remote
-- Our envs + verifiers tweaks live on a FORK of verifiers (`GnarlyMshtep/verifiers`), remote
-  `fork` in the submodule. Branch per issue (`exp/MSH-###-...`). `git add` only specific files
-  (the submodule has unrelated dirty deletions). Push to `fork` so commits link to Linear
-  (webhook installed on the fork). Commit trailer: `refs MSH-###` + `Claude-Session:`.
+- Our envs + verifiers tweaks live on our OWN fork of verifiers (`GnarlyMshtep/verifiers`), which is
+  the submodule's sole remote, named `origin`. We no longer track PrimeIntellect upstream — `main` IS
+  our line of development (the old PrimeIntellect remote was removed; their post-fork commits were
+  discarded from our `main`). Develop on `main` by default (branch per issue `exp/MSH-###-...` only
+  when needed). `git add` only specific files. Push to `origin` so commits link to Linear (webhook
+  installed on the fork). Commit trailer: `refs MSH-###` + `Claude-Session:`.
+- The prime-rl gitlink for `deps/verifiers` records the verifiers commit SHA; after committing in the
+  submodule, bump it (`git -C <prime-rl> add deps/verifiers && commit`) so a fresh clone checks out
+  our verifiers HEAD.
 - The repo's `deps/research-environments` submodule is PrimeIntellect's dedicated custom-env home;
-  we chose the verifiers fork instead because we also want to tweak verifiers itself.
+  we chose our verifiers fork instead because we also want to tweak verifiers itself.
 
 ## Sweeps (FYI, not built)
 - vf-eval multi-model sweeps only via a TOML with multiple `[[eval]]` blocks; CLI is one

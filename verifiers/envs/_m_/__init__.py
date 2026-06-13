@@ -10,6 +10,7 @@ from .judge import (
 )
 from .scene import MsgProvenance, Scene, messages_for_scene
 from .scoring import Scorer, ScorerResult
+from .utils import strict_format, write_once
 
 __all__ = [
     "ComposedEnv", "RawLoggingChatClient",
@@ -17,4 +18,5 @@ __all__ = [
     "Scorer", "ScorerResult",
     "JudgeView", "JudgeScore", "JudgeScorer", "JudgeUnparseableError",
     "render_view", "parse_score", "parse_judge_response",
+    "strict_format", "write_once",
 ]

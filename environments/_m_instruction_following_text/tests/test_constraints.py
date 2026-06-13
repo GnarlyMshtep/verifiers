@@ -1,5 +1,5 @@
-from instruction_following_text.constraints import CONSTRAINTS, split_sentences
-from instruction_following_text.types import ConstraintName
+from _m_instruction_following_text.constraints import CONSTRAINTS, split_sentences
+from _m_instruction_following_text.types import ConstraintName
 
 
 def test_split_sentences_basic():

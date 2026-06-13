@@ -1,8 +1,8 @@
 import asyncio
 
-from instruction_following_text.scorers import ConstraintScorer
-from instruction_following_text.scorer_types import ConstraintScore
-from instruction_following_text.types import (
+from _m_instruction_following_text.scorers import ConstraintScorer
+from _m_instruction_following_text.scorer_types import ConstraintScore
+from _m_instruction_following_text.types import (
     AlpacaProblem,
     ConstraintName,
     ConstraintSpec,

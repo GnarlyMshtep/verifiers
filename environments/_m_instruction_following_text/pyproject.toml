@@ -1,5 +1,5 @@
 [project]
-name = "instruction-following-text"
+name = "m-instruction-following-text"
 description = "Instruction following with rule-checkable word/format constraints + scoring LLM judge (authored env)"
 tags = ["instruction-following", "constraints", "judge", "multi-turn", "authored"]
 version = "0.1.0"
@@ -15,7 +15,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = ["instruction_following_text/**"]
+include = ["_m_instruction_following_text/**"]
 
 [tool.verifiers.eval]
 num_examples = -1

@@ -1,5 +1,5 @@
-from instruction_following_text.dataset import build_problems
-from instruction_following_text.types import ConstraintName, Difficulty, TaskInfo
+from _m_instruction_following_text.dataset import build_problems
+from _m_instruction_following_text.types import ConstraintName, Difficulty, TaskInfo
 
 
 def _requests():

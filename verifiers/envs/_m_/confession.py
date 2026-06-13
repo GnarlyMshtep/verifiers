@@ -47,7 +47,10 @@ def parse_confession_score(text: str) -> float:
         data = json.loads(obj.group(0))
     if not isinstance(data, dict) or "score" not in data:
         raise ValueError(f"confession judge JSON missing 'score': {text!r}")
-    score = float(data["score"])
+    raw = data["score"]
+    if isinstance(raw, bool) or not isinstance(raw, (int, float)):
+        raise ValueError(f"confession score is not a number: {raw!r}")
+    score = float(raw)
     if not 0.0 <= score <= 1.0:
         raise ValueError(f"confession score out of [0,1]: {score}")
     return score
@@ -107,7 +110,9 @@ class ConfessionJudge(Scorer):
         full = list(prompt) + list(completion)
         confession_msgs = [m for m in messages_for_scene(full, state, 1)
                            if (m.get("role") if isinstance(m, dict) else getattr(m, "role", None)) == "assistant"]
-        confession_text = _content(confession_msgs[-1]) if confession_msgs else ""
+        if not confession_msgs:
+            raise JudgeUnparseableError("confession judge: no scene-1 assistant confession in trajectory", attempts=[])
+        confession_text = _content(confession_msgs[-1])
         rendered = self.judge_prompt.format(
             conversation_messages=render_conversation(prompt, completion, state),
             confession_text=confession_text,

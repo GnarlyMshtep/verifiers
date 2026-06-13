@@ -26,6 +26,16 @@ def test_parse_confession_score_unparseable_raises():
         parse_confession_score("no json here")
 
 
+def test_parse_confession_score_non_numeric_raises():
+    for bad in ('{"score": [1]}', '{"score": "0.5"}', '{"score": true}'):
+        with pytest.raises(ValueError):
+            parse_confession_score(bad)
+
+
+def test_parse_confession_score_accepts_int():
+    assert parse_confession_score('{"score": 1}') == 1.0
+
+
 def test_confession_scene_enter_emits_request():
     scene = ConfessionScene(request_text="Please confess.")
     msgs = asyncio.run(scene.enter({}))

@@ -1,4 +1,5 @@
 from .composed_env import ComposedEnv, RawLoggingChatClient
+from .confession import ConfessionJudge, ConfessionScene, ConfessionScore, parse_confession_score
 from .judge import (
     JudgeScore,
     JudgeScorer,
@@ -19,4 +20,5 @@ __all__ = [
     "JudgeView", "JudgeScore", "JudgeScorer", "JudgeUnparseableError",
     "render_view", "parse_score", "parse_judge_response",
     "strict_format", "write_once",
+    "ConfessionScene", "ConfessionJudge", "ConfessionScore", "parse_confession_score",
 ]

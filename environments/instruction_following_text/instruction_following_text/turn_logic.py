@@ -11,7 +11,7 @@ from verifiers.types import Messages, RewardFunc, State
 
 from .scorer_types import Scorer
 from .scorers import JudgeUnparseableError
-from .types import ConstraintName, Difficulty, MsgProvenance, Problem, TurnName
+from .types import ConstraintName, Difficulty, MsgProvenance, TaskInfo, TurnName
 
 _DACITE = dacite.Config(cast=[ConstraintName, Difficulty])
 
@@ -67,7 +67,7 @@ class ComposedEnv(vf.MultiTurnEnv):
             try:
                 result = await scorer.score(
                     prompt=prompt, completion=completion, answer=answer,
-                    problem=state["_problem"], state=state,
+                    task_info=state["_task_info"], state=state,
                 )
             except JudgeUnparseableError as e:
                 # verifiers' Rubric coerces any reward-fn exception to 0.0 (it cannot truly
@@ -87,7 +87,7 @@ class ComposedEnv(vf.MultiTurnEnv):
     async def setup_state(self, state: State) -> State:
         state["turn_idx"] = 0
         state["message_turns"] = []
-        state["_problem"] = dacite.from_dict(Problem, state["info"], config=_DACITE)
+        state["_task_info"] = dacite.from_dict(TaskInfo, state["info"], config=_DACITE)
         client = state.get("client")
         if isinstance(client, OpenAIChatCompletionsClient) and not isinstance(client, RawLoggingChatClient):
             client.__class__ = RawLoggingChatClient

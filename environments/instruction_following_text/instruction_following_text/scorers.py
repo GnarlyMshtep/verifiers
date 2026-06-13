@@ -8,7 +8,7 @@ from verifiers.types import Messages, State
 
 from .constraints import CONSTRAINTS
 from .scorer_types import ConstraintScore, JudgeScore, Scorer, ScorerName
-from .types import JudgeView, Problem
+from .types import JudgeView, TaskInfo
 
 
 class JudgeUnparseableError(ValueError):
@@ -44,25 +44,33 @@ def _role_text(messages: Messages, role: str, last: bool = False) -> str:
 
 
 def render_view(completion: Messages, view: JudgeView) -> str:
-    """Build the text the judge may see, per JudgeView. Raises if CoT is requested but absent."""
+    """Render the actor's turns the judge may see, per JudgeView, as nested XML.
+
+    Each assistant message becomes one `<assistant-turn>`; the view selects which inner
+    tags appear (`<assistant-reasoning-not-delivered-to-user>` for CoT, `<assistant-output>`
+    for the delivered output). Raises if CoT is requested but absent."""
     msgs = assistant_messages(completion)
     if not msgs:
         raise ValueError("no assistant message to render for judge")
-    parts: list[str] = []
-    multi = len(msgs) > 1
+    turns: list[str] = []
     for i, m in enumerate(msgs):
         content = _msg_field(m, "content") or ""
         reasoning = _msg_field(m, "reasoning_content")
-        tag = f"[message {i}] " if multi else ""
-        if view in (JudgeView.OUTPUT, JudgeView.BOTH):
-            parts.append(f"{tag}OUTPUT:\n{content}" if view == JudgeView.BOTH else content)
+        inner: list[str] = []
         if view in (JudgeView.COT, JudgeView.BOTH):
             if not reasoning:
                 raise ValueError(
                     f"JudgeView {view} requested CoT but assistant message {i} has no reasoning_content"
                 )
-            parts.append(f"{tag}REASONING:\n{reasoning}" if view == JudgeView.BOTH else reasoning)
-    return "\n\n".join(parts)
+            inner.append(
+                "<assistant-reasoning-not-delivered-to-user>\n"
+                f"{reasoning}\n"
+                "</assistant-reasoning-not-delivered-to-user>"
+            )
+        if view in (JudgeView.OUTPUT, JudgeView.BOTH):
+            inner.append(f"<assistant-output>\n{content}\n</assistant-output>")
+        turns.append("<assistant-turn>\n" + "\n".join(inner) + "\n</assistant-turn>")
+    return "\n".join(turns)
 
 
 def parse_score(text: str) -> float:
@@ -74,6 +82,21 @@ def parse_score(text: str) -> float:
     return int(ints[-1]) / 10.0
 
 
+def parse_judge_response(text: str) -> tuple[float, str | None]:
+    """Extract the judge's `<score>` (0-10 integer -> [0,1]) and optional `<justification>`.
+
+    The score is parsed from inside the `<score>` tag only, so a chatty justification (which
+    may quote numbers from the response) cannot poison it. Raises if no parseable `<score>`
+    tag is present, so the caller can retry."""
+    sm = re.search(r"<score>(.*?)</score>", text, re.DOTALL | re.IGNORECASE)
+    if not sm:
+        raise ValueError(f"judge response missing a parseable <score>...</score>: {text!r}")
+    score = parse_score(sm.group(1))
+    jm = re.search(r"<justification>(.*?)</justification>", text, re.DOTALL | re.IGNORECASE)
+    justification = jm.group(1).strip() if jm else None
+    return score, justification
+
+
 class ConstraintScorer(Scorer):
     """Rule-based: 1.0 iff the final answer satisfies the problem's constraint."""
 
@@ -82,11 +105,11 @@ class ConstraintScorer(Scorer):
     def __init__(self, weight: float = 1.0):
         self.weight = weight
 
-    async def score(self, *, prompt, completion, answer, problem: Problem, state) -> ConstraintScore:
-        result = CONSTRAINTS[problem.constraint].verify(last_assistant_text(completion))
+    async def score(self, *, prompt, completion, answer, task_info: TaskInfo, state) -> ConstraintScore:
+        result = CONSTRAINTS[task_info.constraint.name].verify(last_assistant_text(completion))
         return ConstraintScore(
             score=1.0 if result.satisfied else 0.0,
-            constraint=problem.constraint,
+            constraint=task_info.constraint.name,
             satisfied=result.satisfied,
             detail=result.detail,
         )
@@ -117,13 +140,13 @@ class JudgeScorer(Scorer):
         self.judge_attempts = judge_attempts
         self.weight = weight
 
-    async def score(self, *, prompt, completion, answer, problem: Problem, state) -> JudgeScore:
+    async def score(self, *, prompt, completion, answer, task_info: TaskInfo, state) -> JudgeScore:
         # The judge sees the actor's system prompt + the FULL user request (incl. the formatting
         # requirement, the last user message) — taken from the actual actor prompt, never trimmed.
         rendered = self.judge_prompt_fn(
             system=_role_text(prompt, "system"),
             question=_role_text(prompt, "user", last=True),
-            response=render_view(completion, self.view),
+            assistant_turns=render_view(completion, self.view),
         )
         attempts: list[dict[str, Any]] = []
         last_raw = ""
@@ -137,14 +160,16 @@ class JudgeScorer(Scorer):
             raw = msg.content or ""
             attempts.append(resp.model_dump())
             try:
+                score, justification = parse_judge_response(raw)
                 return JudgeScore(
-                    score=parse_score(raw),
+                    score=score,
                     view=self.view,
                     model=self.judge_model,
                     judge_input=rendered,
                     judge_output=raw,
                     # OpenRouter returns the field as `reasoning`; vLLM/others as `reasoning_content`.
                     judge_reasoning=getattr(msg, "reasoning", None) or getattr(msg, "reasoning_content", None),
+                    justification=justification,
                     attempts=attempts,
                 )
             except ValueError:

@@ -14,18 +14,23 @@ def test_no_capitals_fail():
     assert not CONSTRAINTS[ConstraintName.NO_CAPITALS].verify("This has a Capital.").satisfied
 
 
-def test_all_sentences_t_pass_two():
-    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify("Tonight it sat. That cat ate it.")
+def test_all_sentences_t_pass_four():
+    # Four sentences; mixed case starts ('Tonight'/'tonight') exercise case-insensitivity.
+    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify(
+        "Tonight it sat. That cat ate it. tonight it bit. To get it out."
+    )
     assert r.satisfied, r.detail
 
 
-def test_all_sentences_t_pass_one():
-    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify("Trust it.")
-    assert r.satisfied, r.detail
+def test_all_sentences_t_fail_too_few():
+    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify("Tonight it sat. That cat ate it. Trust it.")
+    assert not r.satisfied
 
 
 def test_all_sentences_t_fail_letter():
-    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify("Tonight it sat. The dog ran.")
+    r = CONSTRAINTS[ConstraintName.ALL_SENTENCES_T].verify(
+        "Tonight it sat. That cat ate it. Trust it. The dog ran."
+    )
     assert not r.satisfied
 
 

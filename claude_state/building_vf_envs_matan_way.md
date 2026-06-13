@@ -9,12 +9,12 @@
 - Multi-file package layout (NOT single .py):
   - `pyproject.toml` (`[tool.hatch.build] include`, `[tool.verifiers.eval]` defaults).
   - `<pkg>/types.py` — StrEnums + frozen dataclasses for boundary/value types (e.g. `ConstraintName`,
-    `Difficulty`, `JudgeView`, `Problem`, `MsgProvenance`). Prefer enums over bare strings everywhere.
+    `Difficulty`, `JudgeView`, `TaskInfo`, `MsgProvenance`). Prefer enums over bare strings everywhere.
   - `<pkg>/prompts.py` — `PromptKey(StrEnum)` + `PROMPTS` registry + python template fns (prefer
     python over prompt.json: keeps templates + types + discoverability).
   - `<pkg>/constraints.py` (or domain rules) — pure rule-based verifiers; keyed by an enum.
   - `<pkg>/dataset.py` — builds the HF Dataset; rows = `{question, answer, info}` where
-    `info = asdict(Problem)` (the per-example spec dataclass).
+    `info = asdict(task_info)` (the per-example spec dataclass; see "Nesting `info`" below).
   - `<pkg>/scorer_types.py` — `Scorer` ABC + `ScorerResult` dataclass hierarchy + `ScorerName` enum.
   - `<pkg>/scorers.py` — concrete `Scorer`s (rule + judge) + judge-view rendering + score parsing.
   - `<pkg>/turn_logic.py` — `Turn` ABC (conversation flow only) + `ComposedEnv` + `messages_for_turn`.
@@ -46,10 +46,10 @@
   True; the seam for future multi-message/tool turns). Turns do NOT score.
 - **Scorers grade the trajectory.** Scoring is trajectory-level by default (most scorers look at
   the whole completion). A `Scorer` (ABC) has `name: ScorerName`, `weight`, and
-  `async score(*, prompt, completion, answer, problem, state) -> ScorerResult`.
+  `async score(*, prompt, completion, answer, task_info, state) -> ScorerResult`.
 - `ComposedEnv(turns, scorers, **kwargs)` walks `turns`, records per-message provenance in
   `state["message_turns"]` (dataclass asdict, index-aligned with `state["completion"]`), parses
-  `info -> Problem` once (dacite) into `state["_problem"]`, and wraps each `Scorer` into a verifiers
+  `info -> TaskInfo` once (dacite) into `state["_task_info"]`, and wraps each `Scorer` into a verifiers
   reward fn (`__name__ = scorer.name.value`) that appends `asdict(result)` to `state["scorers"]`
   and returns `result.score`. Weights come from `scorer.weight`.
 - **Per-turn scoring is the exception.** A scorer that needs one turn filters the completion with
@@ -98,7 +98,7 @@
 - `Environment.rescore(source_results_path, results_path=..., state_columns=..., save_results=...)`
   replays saved rollouts and re-runs ONLY the rubric — no actor calls. It loads results.jsonl,
   rebuilds each `State` via `output_to_state` (the inverse of `state_to_output`), runs
-  `env.setup_state` (rebuilds `_problem` etc.) + `_score_state`, and writes new outputs.
+  `env.setup_state` (rebuilds `_task_info` etc.) + `_score_state`, and writes new outputs.
 - To score the SAME saved rollouts a different way, construct the env differently and rescore:
   e.g. `load_environment(judge_view=..., judge_model=...)` then `.rescore(<run>)`. ConstraintScorer
   recomputes identically; JudgeScorer scores per the new view/judge. CoT views work because saved
@@ -125,8 +125,31 @@
   mutates the client in place. Safe when the env owns a dedicated client (our launcher passes a
   ClientConfig -> a fresh client per process). For a SHARED training client this leaks (other
   rollouts also write `raw_responses`); replace with a per-rollout wrapper there.
-- **`info -> Problem` via dacite** needs `config=dacite.Config(cast=[<the StrEnum types>])` to
-  convert the serialized strings back into enums.
+- **`info -> TaskInfo` via dacite** needs `config=dacite.Config(cast=[<the StrEnum types>])` to
+  convert the serialized strings back into enums. dacite recurses into nested dataclasses, so the
+  cast list only needs the leaf enum types regardless of nesting depth.
+
+## Nesting `info` (the per-example spec)
+The verifiers `info` column is framework-load-bearing — it is the ONLY per-example column that
+`state_to_output`/`output_to_state` save and restore (so it survives `rescore`), and core reads
+`info["tool_defs"]`. Do NOT rename it to `task_info` or anything else: a custom column forwards into
+`state` but is dropped on save, breaking replay. Instead, keep the column named `info` and make its
+*content* a single top-level `TaskInfo` dataclass that NESTS sub-dataclasses by concern rather than
+flattening every field to one level. For `instruction_following_text`:
+
+```python
+info = asdict(TaskInfo(
+    alpaca=AlpacaProblem(orig_index=..., request_id=..., request=...),  # source-dataset provenance
+    constraint=ConstraintSpec(name=..., difficulty=...),               # the imposed task spec
+))
+# -> {"alpaca": {"orig_index": ..., "request_id": ..., "request": ...},
+#     "constraint": {"name": ..., "difficulty": ...}}
+```
+
+Why nest: `info` stays self-describing (`info["alpaca"]["orig_index"]` vs a flat soup), each concern
+is its own typed dataclass, and adding source-dataset provenance (e.g. the ORIGINAL dataset index,
+captured pre-filter/shuffle in the data builder) never collides with task fields. Downstream
+consumers (flatten/analysis) read the nested paths.
 - **`split_sentences`** (or any naive `[.!?]` splitter) over-splits abbreviations/decimals. Fine
   for pilot constraints; revisit if the model trains against the scorer and exploits it.
 

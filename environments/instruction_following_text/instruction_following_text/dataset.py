@@ -9,7 +9,7 @@ from datasets import Dataset
 
 from .constraints import CONSTRAINTS
 from .prompts import user_query
-from .types import Difficulty, Problem
+from .types import AlpacaProblem, ConstraintSpec, Difficulty, TaskInfo
 
 _DEFAULT_REQUESTS = Path(__file__).parent / "data" / "alpaca_requests.json"
 
@@ -23,24 +23,27 @@ def build_problems(
     requests: list[dict[str, Any]],
     n_requests: int,
     difficulties: tuple[Difficulty, ...],
-) -> list[Problem]:
+) -> list[TaskInfo]:
     """Cross product: first `n_requests` requests × every constraint of the given difficulties."""
     chosen = sorted(
         (c for c in CONSTRAINTS.values() if c.difficulty in difficulties),
         key=lambda c: c.name,
     )
-    problems: list[Problem] = []
+    tasks: list[TaskInfo] = []
     for r in requests[:n_requests]:
+        alpaca = AlpacaProblem(
+            orig_index=int(r["orig_index"]),
+            request_id=int(r["request_id"]),
+            request=r["request"],
+        )
         for c in chosen:
-            problems.append(
-                Problem(
-                    request=r["request"],
-                    constraint=c.name,
-                    difficulty=c.difficulty,
-                    request_id=int(r["request_id"]),
+            tasks.append(
+                TaskInfo(
+                    alpaca=alpaca,
+                    constraint=ConstraintSpec(name=c.name, difficulty=c.difficulty),
                 )
             )
-    return problems
+    return tasks
 
 
 def build_dataset(
@@ -48,14 +51,14 @@ def build_dataset(
     n_requests: int,
     difficulties: tuple[Difficulty, ...],
 ) -> Dataset:
-    problems = build_problems(load_requests(requests_path), n_requests, difficulties)
+    tasks = build_problems(load_requests(requests_path), n_requests, difficulties)
     rows = []
-    for p in problems:
+    for t in tasks:
         rows.append(
             {
-                "question": user_query(p.request, CONSTRAINTS[p.constraint].instruction),
+                "question": user_query(t.alpaca.request, CONSTRAINTS[t.constraint.name].instruction),
                 "answer": "",
-                "info": asdict(p),
+                "info": asdict(t),
             }
         )
     return Dataset.from_list(rows)

@@ -5,10 +5,11 @@ import os
 from openai import AsyncOpenAI
 
 from .dataset import build_dataset
-from .prompts import PROMPTS, PromptKey, render_judge_prompt
+from .prompts import MONITOR_PROMPTS, PROMPTS, PromptKey
+from .scorer_types import JudgeConfig
 from .scorers import ConstraintScorer, JudgeScorer
 from .turn_logic import ComposedEnv, Turn
-from .types import Difficulty, JudgeView, TurnName
+from .types import Difficulty, JudgeView, MonitorPrompt, TurnName
 
 
 class TaskTurn(Turn):
@@ -21,6 +22,7 @@ def load_environment(
     n_requests: int = 17,
     difficulties: tuple[str, ...] = ("easy", "medium", "hard"),
     judge_view: str = "both",
+    monitor_prompt: str = "regular_reasoning_monitor",
     judge_model: str = "openai/gpt-oss-20b",
     judge_base_url: str = "https://openrouter.ai/api/v1",
     judge_api_key_var: str = "OPENROUTER_API_KEY",
@@ -38,19 +40,24 @@ def load_environment(
         raise ValueError(f"judge api key env var {judge_api_key_var!r} is not set")
     judge_client = AsyncOpenAI(base_url=judge_base_url, api_key=api_key)
 
+    judge_cfg = JudgeConfig(  # __post_init__ enforces immediate_answer ⇒ reasoning_effort='none'
+        monitor_prompt=MonitorPrompt(monitor_prompt),
+        view=JudgeView(judge_view),
+        model=judge_model,
+        reasoning_effort=judge_reasoning_effort,
+        max_tokens=judge_max_tokens,
+        weight=judge_weight,
+    )
+
     scorers = [
         ConstraintScorer(weight=constraint_weight),
         JudgeScorer(
-            view=JudgeView(judge_view),
+            view=judge_cfg.view,
             judge_client=judge_client,
-            judge_model=judge_model,
-            judge_prompt_fn=render_judge_prompt,
-            judge_sampling_args={
-                "max_tokens": judge_max_tokens,
-                "temperature": 0.0,
-                "extra_body": {"reasoning": {"effort": judge_reasoning_effort}},
-            },
-            weight=judge_weight,
+            judge_model=judge_cfg.model,
+            judge_prompt_fn=MONITOR_PROMPTS[judge_cfg.monitor_prompt],
+            judge_sampling_args=judge_cfg.sampling_args(),
+            weight=judge_cfg.weight,
         ),
     ]
 

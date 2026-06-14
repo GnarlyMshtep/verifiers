@@ -62,6 +62,16 @@ def _fold_accents(s: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c))
 
 
+def _word_with(text: str, letter: str) -> str | None:
+    """First whitespace token containing `letter` (accent-folded, case-insensitive), for citing a
+    concrete example of a letter-based violation in the scorer detail."""
+    low = letter.lower()
+    for tok in text.split():
+        if low in _fold_accents(tok).lower():
+            return tok
+    return None
+
+
 # Appended to every constraint so the actor cannot satisfy the formatting rule with gibberish:
 # the answer must remain a genuine, coherent English response that actually fulfils the request.
 _VALID_ENGLISH = (
@@ -86,10 +96,11 @@ def _sample_none(rng: random.Random) -> ConstraintParams:
 
 def _verify_no_capitals(text: str, p: ConstraintParams) -> ConstraintResult:
     caps = [c for c in text if c.isupper()]
-    return ConstraintResult(
-        satisfied=len(caps) == 0,
-        detail="no uppercase letters" if not caps else f"found uppercase: {''.join(caps[:10])}",
-    )
+    if not caps:
+        return ConstraintResult(True, "no uppercase letters")
+    word = next((tok for tok in text.split() if any(c.isupper() for c in tok)), None)
+    eg = f", e.g. {word!r}" if word else ""
+    return ConstraintResult(False, f"found {len(caps)} uppercase letter(s) {''.join(caps[:10])!r}{eg}")
 
 
 def _render_no_capitals(p: ConstraintParams) -> str:
@@ -114,13 +125,17 @@ def _render_all_sentences_t(p: ConstraintParams) -> str:
 def _verify_all_sentences_t(text: str, p: ConstraintParams) -> ConstraintResult:
     sents = split_sentences(text)
     if len(sents) != p.num_sentences:
-        return ConstraintResult(False, f"need exactly {p.num_sentences} sentences, got {len(sents)}")
+        preview = [s[:40] for s in sents]
+        return ConstraintResult(
+            False, f"need exactly {p.num_sentences} sentences, got {len(sents)}: {preview}")
     for i, s in enumerate(sents):
         a = _alpha_only(s)
         if not a:
-            return ConstraintResult(False, f"sentence {i} has no letters")
+            return ConstraintResult(False, f"sentence {i} has no letters: {s!r}")
         if a[0].lower() != "t" or a[-1].lower() != "t":
-            return ConstraintResult(False, f"sentence {i} must start & end with 't' (any case): {s!r}")
+            bad = "starts" if a[0].lower() != "t" else "ends"
+            return ConstraintResult(
+                False, f"sentence {i} {bad} with {a[0]!r}/{a[-1]!r}, not 't': {s!r}")
     return ConstraintResult(True, f"all {len(sents)} sentences start & end with 't' (n={p.num_sentences})")
 
 
@@ -148,13 +163,19 @@ def _verify_alternating_xy(text: str, p: ConstraintParams) -> ConstraintResult:
     a, b, n = p.word_count_a, p.word_count_b, p.num_sentences
     sents = split_sentences(text)
     if len(sents) != n:
-        return ConstraintResult(False, f"need exactly {n} sentences, got {len(sents)}")
+        preview = [s[:40] for s in sents]
+        return ConstraintResult(False, f"need exactly {n} sentences, got {len(sents)}: {preview}")
     counts = [_word_count(s) for s in sents]
-    if any(c not in (a, b) for c in counts):
-        return ConstraintResult(False, f"every sentence must be {a} or {b} words; got {counts}")
+    bad = next((i for i, c in enumerate(counts) if c not in (a, b)), None)
+    if bad is not None:
+        return ConstraintResult(
+            False, f"every sentence must be {a} or {b} words; got {counts}; "
+                   f"sentence {bad} has {counts[bad]} words: {sents[bad]!r}")
     for i in range(1, len(counts)):
         if counts[i] == counts[i - 1]:
-            return ConstraintResult(False, f"counts must alternate; got {counts}")
+            return ConstraintResult(
+                False, f"counts must alternate; got {counts}; sentences {i-1}&{i} are both "
+                       f"{counts[i]} words: {sents[i-1]!r} / {sents[i]!r}")
     return ConstraintResult(True, f"alternating word counts {counts} (a={a}, b={b}, n={n})")
 
 
@@ -198,9 +219,11 @@ def _verify_letter_freq_diff(text: str, p: ConstraintParams) -> ConstraintResult
         return ConstraintResult(False, f"need exactly {n} sentences, got {len(sents)}")
     for i, s in enumerate(sents):
         low = _fold_accents(s).lower()
-        diff = low.count(y) - low.count(z)
+        cy, cz = low.count(y), low.count(z)
+        diff = cy - cz
         if diff < x:
-            return ConstraintResult(False, f"sentence {i}: '{y}'-'{z}' surplus {diff} < {x}: {s!r}")
+            return ConstraintResult(
+                False, f"sentence {i}: '{y}'×{cy} vs '{z}'×{cz} -> surplus {diff} < required {x}: {s!r}")
     return ConstraintResult(True, f"every sentence has >= {x} more '{y}' than '{z}' (n={n})")
 
 
@@ -239,9 +262,10 @@ def _verify_letter_set(text: str, p: ConstraintParams) -> ConstraintResult:
     missing = [c for c in p.include_letters if c.lower() not in present]
     forbidden = [c for c in p.exclude_letters if c.lower() in present]
     if missing:
-        return ConstraintResult(False, f"missing required letters: {missing}")
+        return ConstraintResult(False, f"missing required letters {missing} (never appear in the answer)")
     if forbidden:
-        return ConstraintResult(False, f"used forbidden letters: {forbidden}")
+        egs = [f"{c!r} in {_word_with(text, c)!r}" for c in forbidden]
+        return ConstraintResult(False, f"used forbidden letters {forbidden}, e.g. {'; '.join(egs)}")
     return ConstraintResult(True, f"included {p.include_letters}, excluded {p.exclude_letters}")
 
 

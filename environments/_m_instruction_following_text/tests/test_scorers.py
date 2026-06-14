@@ -5,6 +5,7 @@ from _m_instruction_following_text.scorer_types import ConstraintScore
 from _m_instruction_following_text.types import (
     AlpacaProblem,
     ConstraintName,
+    ConstraintParams,
     ConstraintSpec,
     Difficulty,
     TaskInfo,
@@ -14,7 +15,7 @@ from _m_instruction_following_text.types import (
 def _task_info(constraint: ConstraintName) -> TaskInfo:
     return TaskInfo(
         alpaca=AlpacaProblem(orig_index=0, request_id=0, request="r"),
-        constraint=ConstraintSpec(name=constraint, difficulty=Difficulty.EASY),
+        constraint=ConstraintSpec(name=constraint, difficulty=Difficulty.EASY, params=ConstraintParams()),
     )
 
 

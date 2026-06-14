@@ -17,7 +17,8 @@ class ConstraintScorer(Scorer):
         self.weight = weight
 
     async def score(self, *, prompt, completion, answer, task_info: TaskInfo, state) -> ConstraintScore:
-        result = CONSTRAINTS[task_info.constraint.name].verify(last_assistant_text(completion))
+        spec = task_info.constraint
+        result = CONSTRAINTS[spec.name].verify(last_assistant_text(completion), spec.params)
         return ConstraintScore(
             score=1.0 if result.satisfied else 0.0,
             constraint=task_info.constraint.name,

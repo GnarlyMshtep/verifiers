@@ -316,6 +316,12 @@ consumers (flatten/analysis) read the nested paths.
   model per call. We use individual launcher invocations.
 
 ## Registry (authored envs)
-- `_m_instruction_following_text` (renamed from `instruction_following_text`) — instruction
-  following w/ word constraints + scoring judge (Scorer/ScorerResult architecture; ConstraintScorer
-  + shared JudgeScorer; built on the `Scene`/`ComposedEnv` scaffold in `verifiers.envs._m_`).
+- `_m_instruction_following_text` (renamed from `instruction_following_text`) — Alpaca request +
+  a **parameterized** textual formatting constraint + scoring judge. 5 constraints (controls
+  `no_capitals`/`all_sentences_t` + `alternating_xy`/`letter_freq_diff`/`letter_set`), each a
+  `(sample_params, render_instruction, verify)` triple with per-example params (sha1-seeded) stored
+  in `info` and round-tripped via dacite for reproducible `rescore`. ConstraintScorer + shared
+  JudgeScorer over output/cot/both views × immediate/regular monitor prompts; built on the
+  `Scene`/`ComposedEnv` scaffold in `verifiers.envs._m_`. Difficulty knobs calibrated by a
+  same-conditions smoke (`claude_state/ift-tweak-log.md`); monitor predictiveness analyzed
+  logs-only (`claude_scripts/analysis_scripts/instruction_following_text/by_constraint.py`).

@@ -163,13 +163,20 @@ def _verify_alternating_xy(text: str, p: ConstraintParams) -> ConstraintResult:
 # NOT a curated difficulty pool. Lower index = more common.
 ENGLISH_FREQ_ORDER = "etaoinshrdlcumwfgypbvkjxqz"
 _FREQ_RANK = {c: i for i, c in enumerate(ENGLISH_FREQ_ORDER)}
-_FREQ_DELTA_RANGE = (2, 3)  # tunable by calibration smoke (Task 8.5)
+# Difficulty comes from FREQUENCY ADJACENCY, not delta: if y is much more common than z, natural
+# English clears "more y than z" for free. Drawing y and z as frequency-NEIGHBORS (close natural rates)
+# from the common region makes a per-sentence surplus genuinely contested while staying feasible
+# (y is still the more common of the pair). Both knobs tunable by calibration smoke (Task 8.5).
+_FREQ_DELTA_RANGE = (2, 3)   # per-sentence surplus required
+_FREQ_POOL_RANK = 14         # both letters from ENGLISH_FREQ_ORDER[:14] (exclude the near-zero rare tail)
+_FREQ_ADJ_GAP = (1, 2)       # z is 1-2 frequency-ranks rarer than y -> close rates -> hard surplus
 
 
 def _sample_letter_freq_diff(rng: random.Random) -> ConstraintParams:
-    y, z = rng.sample(ENGLISH_FREQ_ORDER, 2)
-    if _FREQ_RANK[y] > _FREQ_RANK[z]:      # ensure y is the more-common letter (feasible)
-        y, z = z, y
+    pool = ENGLISH_FREQ_ORDER[:_FREQ_POOL_RANK]
+    gap = rng.randint(*_FREQ_ADJ_GAP)
+    yi = rng.randint(0, len(pool) - 1 - gap)
+    y, z = pool[yi], pool[yi + gap]        # y is `gap` ranks more common than z (feasible but tight)
     return ConstraintParams(
         num_sentences=_sample_num_sentences(rng),
         freq_letter=y, freq_other=z, freq_delta=rng.randint(*_FREQ_DELTA_RANGE),

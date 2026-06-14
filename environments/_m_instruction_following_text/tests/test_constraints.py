@@ -87,3 +87,24 @@ def test_letter_freq_diff_fail_one_sentence_short():
 def test_letter_freq_diff_fail_too_few_sentences():
     p = ConstraintParams(num_sentences=3, freq_letter="e", freq_other="z", freq_delta=2)
     assert not CONSTRAINTS[ConstraintName.LETTER_FREQ_DIFF].verify("Eee. Eee.", p).satisfied
+
+
+def test_letter_set_sample_disjoint_nonempty():
+    p = _params(ConstraintName.LETTER_SET)
+    assert p.include_letters and p.exclude_letters
+    assert not (set(p.include_letters) & set(p.exclude_letters))
+
+
+def test_letter_set_pass():
+    p = ConstraintParams(include_letters=["x", "z"], exclude_letters=["b", "p"])
+    assert CONSTRAINTS[ConstraintName.LETTER_SET].verify("A lazy fox zigzags next door.", p).satisfied
+
+
+def test_letter_set_fail_missing_include():
+    p = ConstraintParams(include_letters=["x", "z"], exclude_letters=["b", "p"])
+    assert not CONSTRAINTS[ConstraintName.LETTER_SET].verify("A lazy cat naps.", p).satisfied  # no x
+
+
+def test_letter_set_fail_has_excluded():
+    p = ConstraintParams(include_letters=["x", "z"], exclude_letters=["b", "p"])
+    assert not CONSTRAINTS[ConstraintName.LETTER_SET].verify("A box of zebras by a pier.", p).satisfied  # b,p

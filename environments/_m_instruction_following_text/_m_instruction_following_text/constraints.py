@@ -2,17 +2,42 @@ from __future__ import annotations
 
 import random
 import re
+import unicodedata
 
 from .types import Constraint, ConstraintName, ConstraintParams, ConstraintResult, Difficulty
 
+# A candidate sentence boundary: a run of .!? terminal punctuation followed by whitespace or end-of-string.
 _SENTENCE_SPLIT = re.compile(r"[.!?]+(?:\s+|$)")
+
+# Lowercased abbreviations (without trailing dot) that should NOT terminate a sentence.
+_ABBREVIATIONS: frozenset[str] = frozenset(
+    {"mr", "mrs", "ms", "dr", "prof", "sr", "jr", "st", "etc", "vs", "e.g", "i.e"}
+)
+# A dotted initialism like "U.S.A" (letters separated by dots, optional trailing letter).
+_INITIALISM = re.compile(r"^([A-Za-z]\.)+[A-Za-z]?$")
 
 
 def split_sentences(text: str) -> list[str]:
-    """Split into sentences, keeping terminal punctuation, dropping empties/whitespace."""
+    """Split into sentences, keeping terminal punctuation, dropping empties/whitespace.
+
+    Splits on a `.!?` run followed by whitespace/EOS, but suppresses spurious splits caused by
+    ellipses (multi-dot runs), title/latin abbreviations (e.g. ``Mr.``, ``etc.``), and dotted
+    initialisms (e.g. ``U.S.A.``).
+    """
     out: list[str] = []
-    pos = 0
+    pos = 0  # start of the current sentence chunk
     for m in _SENTENCE_SPLIT.finditer(text):
+        punct = m.group().strip()  # the .!? run without trailing whitespace
+        # Ellipsis: a run of >=2 dots is non-terminal (mid-utterance pause), so don't split here.
+        if len(punct) >= 2 and set(punct) == {"."}:
+            continue
+        # Single-dot boundary: suppress if the preceding word token is an abbreviation/initialism.
+        if punct == ".":
+            preceding = text[pos:m.start()].rsplit(None, 1)
+            token = preceding[-1] if preceding else ""
+            stripped = token.rstrip(".").lower()
+            if stripped in _ABBREVIATIONS or _INITIALISM.match(token):
+                continue
         chunk = text[pos:m.end()].strip()
         if chunk:
             out.append(chunk)
@@ -25,6 +50,16 @@ def split_sentences(text: str) -> list[str]:
 
 def _alpha_only(s: str) -> str:
     return "".join(c for c in s if c.isalpha())
+
+
+def _word_count(s: str) -> int:
+    """Count whitespace-separated tokens that contain at least one alphabetic character."""
+    return sum(1 for t in s.split() if any(c.isalpha() for c in t))
+
+
+def _fold_accents(s: str) -> str:
+    """NFKD-normalize and drop combining marks so accented letters (é) fold to their base (e)."""
+    return "".join(c for c in unicodedata.normalize("NFKD", s) if not unicodedata.combining(c))
 
 
 # Appended to every constraint so the actor cannot satisfy the formatting rule with gibberish:
@@ -114,7 +149,7 @@ def _verify_alternating_xy(text: str, p: ConstraintParams) -> ConstraintResult:
     sents = split_sentences(text)
     if len(sents) != n:
         return ConstraintResult(False, f"need exactly {n} sentences, got {len(sents)}")
-    counts = [len(s.split()) for s in sents]
+    counts = [_word_count(s) for s in sents]
     if any(c not in (a, b) for c in counts):
         return ConstraintResult(False, f"every sentence must be {a} or {b} words; got {counts}")
     for i in range(1, len(counts)):
@@ -155,7 +190,7 @@ def _verify_letter_freq_diff(text: str, p: ConstraintParams) -> ConstraintResult
     if len(sents) != n:
         return ConstraintResult(False, f"need exactly {n} sentences, got {len(sents)}")
     for i, s in enumerate(sents):
-        low = s.lower()
+        low = _fold_accents(s).lower()
         diff = low.count(y) - low.count(z)
         if diff < x:
             return ConstraintResult(False, f"sentence {i}: '{y}'-'{z}' surplus {diff} < {x}: {s!r}")
@@ -175,6 +210,10 @@ def _sample_letter_set(rng: random.Random) -> ConstraintParams:
     rare = list(ENGLISH_FREQ_ORDER[_INCLUDE_RANK_MIN:])
     mid = list(ENGLISH_FREQ_ORDER[_EXCLUDE_RANK_MIN:_EXCLUDE_RANK_MAX + 1])  # disjoint from `rare` by construction
     include = rng.sample(rare, _N_INCLUDE)
+    # Requiring 'q' while forbidding 'u' is near-impossible in real English; drop 'u' from the
+    # exclude pool whenever 'q' is required so the constraint stays feasible.
+    if "q" in include:
+        mid = [c for c in mid if c != "u"]
     exclude = rng.sample(mid, _N_EXCLUDE)
     return ConstraintParams(include_letters=include, exclude_letters=exclude)
 

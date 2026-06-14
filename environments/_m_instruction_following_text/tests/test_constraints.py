@@ -1,5 +1,11 @@
+import random
+
 from _m_instruction_following_text.constraints import CONSTRAINTS, split_sentences
-from _m_instruction_following_text.types import ConstraintName
+from _m_instruction_following_text.types import ConstraintName, ConstraintParams
+
+
+def _params(name):
+    return CONSTRAINTS[name].sample_params(random.Random(0))
 
 
 def test_split_sentences_basic():
@@ -34,13 +40,28 @@ def test_all_sentences_t_fail_letter():
     assert not r.satisfied
 
 
-def test_alternating_12_18_pass():
-    s12 = " ".join(["word"] * 12) + "."
-    s18 = " ".join(["word"] * 18) + "."
-    assert CONSTRAINTS[ConstraintName.ALTERNATING_12_18].verify(f"{s12} {s18} {s12}").satisfied
+def test_alternating_xy_sample_in_range_and_distinct():
+    p = _params(ConstraintName.ALTERNATING_XY)
+    assert 5 <= p.word_count_a <= 20 and 5 <= p.word_count_b <= 20
+    assert p.word_count_a != p.word_count_b
 
 
-def test_alternating_12_18_fail():
-    s12 = " ".join(["word"] * 12) + "."
-    s13 = " ".join(["word"] * 13) + "."
-    assert not CONSTRAINTS[ConstraintName.ALTERNATING_12_18].verify(f"{s12} {s13}").satisfied
+def test_alternating_xy_pass():
+    p = ConstraintParams(num_sentences=3, word_count_a=7, word_count_b=11)
+    s7 = " ".join(["word"] * 7) + "."
+    s11 = " ".join(["word"] * 11) + "."
+    r = CONSTRAINTS[ConstraintName.ALTERNATING_XY].verify(f"{s7} {s11} {s7}", p)
+    assert r.satisfied, r.detail
+
+
+def test_alternating_xy_fail_wrong_count():
+    p = ConstraintParams(num_sentences=3, word_count_a=7, word_count_b=11)
+    s7 = " ".join(["word"] * 7) + "."
+    s9 = " ".join(["word"] * 9) + "."
+    assert not CONSTRAINTS[ConstraintName.ALTERNATING_XY].verify(f"{s7} {s9}", p).satisfied
+
+
+def test_alternating_xy_render_mentions_both_counts():
+    p = ConstraintParams(num_sentences=3, word_count_a=7, word_count_b=11)
+    instr = CONSTRAINTS[ConstraintName.ALTERNATING_XY].render_instruction(p)
+    assert "7" in instr and "11" in instr

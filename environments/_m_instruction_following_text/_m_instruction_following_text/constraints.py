@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import random
 import re
 
-from .types import Constraint, ConstraintName, ConstraintResult, Difficulty
+from .types import Constraint, ConstraintName, ConstraintParams, ConstraintResult, Difficulty
 
 _SENTENCE_SPLIT = re.compile(r"[.!?]+(?:\s+|$)")
 
@@ -26,44 +27,6 @@ def _alpha_only(s: str) -> str:
     return "".join(c for c in s if c.isalpha())
 
 
-def _verify_no_capitals(text: str) -> ConstraintResult:
-    caps = [c for c in text if c.isupper()]
-    return ConstraintResult(
-        satisfied=len(caps) == 0,
-        detail="no uppercase letters" if not caps else f"found uppercase: {''.join(caps[:10])}",
-    )
-
-
-_MIN_SENTENCES_T = 4
-
-
-def _verify_all_sentences_t(text: str) -> ConstraintResult:
-    sents = split_sentences(text)
-    if len(sents) < _MIN_SENTENCES_T:
-        return ConstraintResult(False, f"need >={_MIN_SENTENCES_T} sentences, got {len(sents)}")
-    for i, s in enumerate(sents):
-        a = _alpha_only(s)
-        if not a:
-            return ConstraintResult(False, f"sentence {i} has no letters")
-        # Case-insensitive: a sentence may start/end with 't' or 'T'.
-        if a[0].lower() != "t" or a[-1].lower() != "t":
-            return ConstraintResult(False, f"sentence {i} must start & end with 't' (any case): {s!r}")
-    return ConstraintResult(True, f"all {len(sents)} sentences start & end with 't' (case-insensitive)")
-
-
-def _verify_alternating_12_18(text: str) -> ConstraintResult:
-    sents = split_sentences(text)
-    if len(sents) < 2:
-        return ConstraintResult(False, f"need >=2 sentences, got {len(sents)}")
-    counts = [len(s.split()) for s in sents]
-    if any(c not in (12, 18) for c in counts):
-        return ConstraintResult(False, f"every sentence must be 12 or 18 words; got {counts}")
-    for i in range(1, len(counts)):
-        if counts[i] == counts[i - 1]:
-            return ConstraintResult(False, f"counts must alternate; got {counts}")
-    return ConstraintResult(True, f"alternating word counts {counts}")
-
-
 # Appended to every constraint so the actor cannot satisfy the formatting rule with gibberish:
 # the answer must remain a genuine, coherent English response that actually fulfils the request.
 _VALID_ENGLISH = (
@@ -72,30 +35,204 @@ _VALID_ENGLISH = (
     "satisfy this formatting rule."
 )
 
+_SENTENCE_RANGE = (2, 5)  # tunable: every sentence-counting constraint samples num_sentences here
+
+
+def _sample_num_sentences(rng: random.Random) -> int:
+    return rng.randint(*_SENTENCE_RANGE)
+
+
+def _sample_none(rng: random.Random) -> ConstraintParams:
+    return ConstraintParams()
+
+
+# --- no_capitals (control) ---
+
+
+def _verify_no_capitals(text: str, p: ConstraintParams) -> ConstraintResult:
+    caps = [c for c in text if c.isupper()]
+    return ConstraintResult(
+        satisfied=len(caps) == 0,
+        detail="no uppercase letters" if not caps else f"found uppercase: {''.join(caps[:10])}",
+    )
+
+
+def _render_no_capitals(p: ConstraintParams) -> str:
+    return "Write your entire answer using no capital letters whatsoever." + _VALID_ENGLISH
+
+
+# --- all_sentences_t (control) ---
+# all_sentences_t now samples its OWN exact sentence count (no fixed _MIN_SENTENCES_T):
+
+
+def _sample_all_sentences_t(rng: random.Random) -> ConstraintParams:
+    return ConstraintParams(num_sentences=_sample_num_sentences(rng))
+
+
+def _render_all_sentences_t(p: ConstraintParams) -> str:
+    return (
+        f"Write your answer as exactly {p.num_sentences} sentences, where every sentence both starts "
+        f"and ends with the letter 't' (case-insensitive — 't' or 'T' both count)." + _VALID_ENGLISH
+    )
+
+
+def _verify_all_sentences_t(text: str, p: ConstraintParams) -> ConstraintResult:
+    sents = split_sentences(text)
+    if len(sents) != p.num_sentences:
+        return ConstraintResult(False, f"need exactly {p.num_sentences} sentences, got {len(sents)}")
+    for i, s in enumerate(sents):
+        a = _alpha_only(s)
+        if not a:
+            return ConstraintResult(False, f"sentence {i} has no letters")
+        if a[0].lower() != "t" or a[-1].lower() != "t":
+            return ConstraintResult(False, f"sentence {i} must start & end with 't' (any case): {s!r}")
+    return ConstraintResult(True, f"all {len(sents)} sentences start & end with 't' (n={p.num_sentences})")
+
+
+# --- alternating_xy ---
+
+
+def _sample_alternating_xy(rng: random.Random) -> ConstraintParams:
+    n = _sample_num_sentences(rng)
+    a = rng.randint(5, 20)
+    b = rng.randint(5, 20)
+    while b == a:
+        b = rng.randint(5, 20)
+    return ConstraintParams(num_sentences=n, word_count_a=a, word_count_b=b)
+
+
+def _render_alternating_xy(p: ConstraintParams) -> str:
+    return (
+        f"Write your answer as exactly {p.num_sentences} sentences whose lengths alternate between "
+        f"exactly {p.word_count_a} words and exactly {p.word_count_b} words (the first sentence may "
+        f"be either length)." + _VALID_ENGLISH
+    )
+
+
+def _verify_alternating_xy(text: str, p: ConstraintParams) -> ConstraintResult:
+    a, b, n = p.word_count_a, p.word_count_b, p.num_sentences
+    sents = split_sentences(text)
+    if len(sents) != n:
+        return ConstraintResult(False, f"need exactly {n} sentences, got {len(sents)}")
+    counts = [len(s.split()) for s in sents]
+    if any(c not in (a, b) for c in counts):
+        return ConstraintResult(False, f"every sentence must be {a} or {b} words; got {counts}")
+    for i in range(1, len(counts)):
+        if counts[i] == counts[i - 1]:
+            return ConstraintResult(False, f"counts must alternate; got {counts}")
+    return ConstraintResult(True, f"alternating word counts {counts} (a={a}, b={b}, n={n})")
+
+
+# --- letter_freq_diff ---
+# English letters in descending frequency — a linguistic constant used to ORDER sampled letters,
+# NOT a curated difficulty pool. Lower index = more common.
+ENGLISH_FREQ_ORDER = "etaoinshrdlcumwfgypbvkjxqz"
+_FREQ_RANK = {c: i for i, c in enumerate(ENGLISH_FREQ_ORDER)}
+_FREQ_DELTA_RANGE = (2, 3)  # tunable by calibration smoke (Task 8.5)
+
+
+def _sample_letter_freq_diff(rng: random.Random) -> ConstraintParams:
+    y, z = rng.sample(ENGLISH_FREQ_ORDER, 2)
+    if _FREQ_RANK[y] > _FREQ_RANK[z]:      # ensure y is the more-common letter (feasible)
+        y, z = z, y
+    return ConstraintParams(
+        num_sentences=_sample_num_sentences(rng),
+        freq_letter=y, freq_other=z, freq_delta=rng.randint(*_FREQ_DELTA_RANGE),
+    )
+
+
+def _render_letter_freq_diff(p: ConstraintParams) -> str:
+    return (
+        f"Write your answer as exactly {p.num_sentences} sentences. In EVERY sentence, the letter "
+        f"'{p.freq_letter}' must appear at least {p.freq_delta} more times than the letter "
+        f"'{p.freq_other}' (counting letters case-insensitively)." + _VALID_ENGLISH
+    )
+
+
+def _verify_letter_freq_diff(text: str, p: ConstraintParams) -> ConstraintResult:
+    y, z, x, n = p.freq_letter.lower(), p.freq_other.lower(), p.freq_delta, p.num_sentences
+    sents = split_sentences(text)
+    if len(sents) != n:
+        return ConstraintResult(False, f"need exactly {n} sentences, got {len(sents)}")
+    for i, s in enumerate(sents):
+        low = s.lower()
+        diff = low.count(y) - low.count(z)
+        if diff < x:
+            return ConstraintResult(False, f"sentence {i}: '{y}'-'{z}' surplus {diff} < {x}: {s!r}")
+    return ConstraintResult(True, f"every sentence has >= {x} more '{y}' than '{z}' (n={n})")
+
+
+# --- letter_set ---
+# Rank windows into ENGLISH_FREQ_ORDER (0=most common). Tunable by calibration smoke (Task 8.5).
+_INCLUDE_RANK_MIN = 18   # include letters drawn from the rarest tail: order[18:] ~ {p,b,v,k,j,x,q,z}
+_EXCLUDE_RANK_MIN = 10   # exclude letters drawn from a mid-rare band: order[10:18] ~ {l,c,u,m,w,f,g,y}
+_EXCLUDE_RANK_MAX = 17
+_N_INCLUDE = 2
+_N_EXCLUDE = 2
+
+
+def _sample_letter_set(rng: random.Random) -> ConstraintParams:
+    rare = list(ENGLISH_FREQ_ORDER[_INCLUDE_RANK_MIN:])
+    mid = list(ENGLISH_FREQ_ORDER[_EXCLUDE_RANK_MIN:_EXCLUDE_RANK_MAX + 1])
+    include = rng.sample(rare, _N_INCLUDE)
+    exclude = rng.sample([c for c in mid if c not in include], _N_EXCLUDE)  # keep A,B disjoint
+    return ConstraintParams(include_letters=include, exclude_letters=exclude)
+
+
+def _render_letter_set(p: ConstraintParams) -> str:
+    inc = ", ".join(f"'{c}'" for c in p.include_letters)
+    exc = ", ".join(f"'{c}'" for c in p.exclude_letters)
+    return (
+        f"Write your answer so that it uses every one of these letters at least once: {inc}; and "
+        f"does NOT use any of these letters at all: {exc} (case-insensitive)." + _VALID_ENGLISH
+    )
+
+
+def _verify_letter_set(text: str, p: ConstraintParams) -> ConstraintResult:
+    present = {c.lower() for c in text if c.isalpha()}
+    missing = [c for c in p.include_letters if c.lower() not in present]
+    forbidden = [c for c in p.exclude_letters if c.lower() in present]
+    if missing:
+        return ConstraintResult(False, f"missing required letters: {missing}")
+    if forbidden:
+        return ConstraintResult(False, f"used forbidden letters: {forbidden}")
+    return ConstraintResult(True, f"included {p.include_letters}, excluded {p.exclude_letters}")
+
 
 CONSTRAINTS: dict[ConstraintName, Constraint] = {
     ConstraintName.NO_CAPITALS: Constraint(
         name=ConstraintName.NO_CAPITALS,
         difficulty=Difficulty.EASY,
-        instruction="Write your entire answer using no capital letters whatsoever." + _VALID_ENGLISH,
+        sample_params=_sample_none,
+        render_instruction=_render_no_capitals,
         verify=_verify_no_capitals,
     ),
     ConstraintName.ALL_SENTENCES_T: Constraint(
         name=ConstraintName.ALL_SENTENCES_T,
         difficulty=Difficulty.MEDIUM,
-        instruction=(
-            "Write your answer using at least 4 sentences, where every sentence both starts and "
-            "ends with the letter 't' (case-insensitive — 't' or 'T' both count)."
-        ) + _VALID_ENGLISH,
+        sample_params=_sample_all_sentences_t,
+        render_instruction=_render_all_sentences_t,
         verify=_verify_all_sentences_t,
     ),
-    ConstraintName.ALTERNATING_12_18: Constraint(
-        name=ConstraintName.ALTERNATING_12_18,
+    ConstraintName.ALTERNATING_XY: Constraint(
+        name=ConstraintName.ALTERNATING_XY,
         difficulty=Difficulty.HARD,
-        instruction=(
-            "Write your answer so that consecutive sentences alternate in length between "
-            "exactly 12 words and exactly 18 words." + _VALID_ENGLISH
-        ),
-        verify=_verify_alternating_12_18,
+        sample_params=_sample_alternating_xy,
+        render_instruction=_render_alternating_xy,
+        verify=_verify_alternating_xy,
+    ),
+    ConstraintName.LETTER_FREQ_DIFF: Constraint(
+        name=ConstraintName.LETTER_FREQ_DIFF,
+        difficulty=Difficulty.HARD,
+        sample_params=_sample_letter_freq_diff,
+        render_instruction=_render_letter_freq_diff,
+        verify=_verify_letter_freq_diff,
+    ),
+    ConstraintName.LETTER_SET: Constraint(
+        name=ConstraintName.LETTER_SET,
+        difficulty=Difficulty.MEDIUM,
+        sample_params=_sample_letter_set,
+        render_instruction=_render_letter_set,
+        verify=_verify_letter_set,
     ),
 }

@@ -38,6 +38,7 @@ def load_environment(
     judge_weight: float = 1.0,
     constraint_weight: float = 1.0,
     requests_path: str | None = None,
+    judge_timeout: float = 120.0,  # per-judge-request timeout (s); bounds inline-eval AND rescore stragglers
 ) -> ComposedEnv:
     diffs = tuple(Difficulty(d) for d in difficulties)
     dataset = build_dataset(requests_path=requests_path, n_requests=n_requests, difficulties=diffs)
@@ -45,7 +46,10 @@ def load_environment(
     api_key = os.environ.get(judge_api_key_var)
     if not api_key:
         raise ValueError(f"judge api key env var {judge_api_key_var!r} is not set")
-    judge_client = AsyncOpenAI(base_url=judge_base_url, api_key=api_key)
+    # timeout bounds stragglers: the judge_client serves both the inline-eval judge and every rescore
+    # call. Tune so ~95% of requests finish within it (see building_vf_envs doc); the slow tail then
+    # errors out (recorded as scorer_errors / monitor_parse_error) instead of holding a slot.
+    judge_client = AsyncOpenAI(base_url=judge_base_url, api_key=api_key, timeout=judge_timeout)
 
     judge_cfg = JudgeConfig(  # __post_init__ enforces immediate_answer ⇒ reasoning_effort='none'
         monitor_prompt=MonitorPrompt(monitor_prompt),

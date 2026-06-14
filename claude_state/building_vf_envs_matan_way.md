@@ -234,6 +234,26 @@ reasoning in the mode you'll sweep.
   rollouts these are). Only `independent` (per-rollout) scoring is supported; group-reward rubrics
   raise.
 
+## Request timeouts (bound stragglers — eval AND rescore)
+- **Always set per-request timeouts; the vf default is 3600 s (1 h).** `ClientConfig.timeout`
+  defaults to one hour, so a single wedged/rate-limited request holds a concurrency slot for up to an
+  hour instead of failing fast. With actor reasoning on (or a flaky OpenRouter provider — e.g.
+  nemotron-nano threw 125× 429 in one 350-row sweep) the long tail dominates wall-clock.
+- **Actor and judge timeouts are SEPARATE clients.** The actor uses the `ClientConfig` the launcher
+  passes to `env.evaluate` (set `timeout=` there — exposed as `run_instruction_eval.py
+  --request-timeout`). The judge uses a different `AsyncOpenAI(...)` built in the env's `env.py`
+  (`load_environment(..., judge_timeout=...)` → `AsyncOpenAI(timeout=...)`). The actor timeout does
+  NOT reach the judge, and **`rescore` makes only judge calls** — so to bound rescore you MUST set
+  `judge_timeout` (it threads through `rescore_grid.py --judge-timeout`). This is per-env: each env's
+  `env.py` builds its own judge client, so the knob lives there, not in `ComposedEnv`.
+- **Tune heuristically to ~95% of requests landing within the timeout.** Set the timeout so roughly
+  95% of requests complete inside it and the slow ~5% tail errors out (recorded as `scorer_errors` /
+  `monitor_parse_error`, dropped from stats — kept on disk as reward-0 trajectories) rather than
+  stalling the run. Eyeball the per-request durations (the tqdm `s/it` and the rollout `timing`
+  field) from a smoke run and pick the knee of the distribution; don't over-tighten (genuine
+  slow-but-alive reasoning rollouts still need `max_retries` headroom). First-draft values for this
+  env: actor `--request-timeout 240`, `judge_timeout 120` (local vLLM judges rarely straggle).
+
 ## Gotchas learned
 - **Weights:** `MultiTurnEnv.__init__` wraps your `vf.Rubric` in a `RubricGroup` (adds a monitor
   rubric). So `env.rubric` is a RubricGroup and your funcs live in `env.rubric.rubrics[0]`. Set

@@ -61,3 +61,29 @@ def test_alternating_xy_render_mentions_both_counts():
     p = ConstraintParams(num_sentences=3, word_count_a=7, word_count_b=11)
     instr = CONSTRAINTS[ConstraintName.ALTERNATING_XY].render_instruction(p)
     assert "7" in instr and "11" in instr
+
+
+def test_letter_freq_diff_sample_fields():
+    p = _params(ConstraintName.LETTER_FREQ_DIFF)
+    assert p.freq_letter and p.freq_other and p.freq_letter != p.freq_other
+    assert p.freq_delta >= 1
+
+
+def test_letter_freq_diff_pass():
+    p = ConstraintParams(num_sentences=3, freq_letter="e", freq_other="z", freq_delta=2)
+    # each sentence: many e's, no z's
+    txt = "Eleven geese feel eager. These trees seem green here."
+    r = CONSTRAINTS[ConstraintName.LETTER_FREQ_DIFF].verify(txt + " Even better, every tree grew.", p)
+    assert r.satisfied, r.detail
+
+
+def test_letter_freq_diff_fail_one_sentence_short():
+    p = ConstraintParams(num_sentences=3, freq_letter="e", freq_other="z", freq_delta=2)
+    # second sentence has zero e-minus-z surplus
+    txt = "Eleven geese feel eager. Zzz buzz jazz. Even better, every tree grew."
+    assert not CONSTRAINTS[ConstraintName.LETTER_FREQ_DIFF].verify(txt, p).satisfied
+
+
+def test_letter_freq_diff_fail_too_few_sentences():
+    p = ConstraintParams(num_sentences=3, freq_letter="e", freq_other="z", freq_delta=2)
+    assert not CONSTRAINTS[ConstraintName.LETTER_FREQ_DIFF].verify("Eee. Eee.", p).satisfied

@@ -6,9 +6,7 @@ def test_params_deterministic_per_request_and_constraint():
     name = ConstraintName.ALTERNATING_XY
     p1 = _sample_params_for(name=name, request_id=7)
     p2 = _sample_params_for(name=name, request_id=7)
-    p3 = _sample_params_for(name=name, request_id=8)
     assert p1 == p2          # same seed -> identical params (reproducible across actor runs / rescore)
-    assert p1 != p3 or True  # different request_id -> independent draw (may rarely collide)
 
 
 def test_build_problems_attaches_params():

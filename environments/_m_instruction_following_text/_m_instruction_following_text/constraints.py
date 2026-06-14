@@ -173,9 +173,9 @@ _N_EXCLUDE = 2
 
 def _sample_letter_set(rng: random.Random) -> ConstraintParams:
     rare = list(ENGLISH_FREQ_ORDER[_INCLUDE_RANK_MIN:])
-    mid = list(ENGLISH_FREQ_ORDER[_EXCLUDE_RANK_MIN:_EXCLUDE_RANK_MAX + 1])
+    mid = list(ENGLISH_FREQ_ORDER[_EXCLUDE_RANK_MIN:_EXCLUDE_RANK_MAX + 1])  # disjoint from `rare` by construction
     include = rng.sample(rare, _N_INCLUDE)
-    exclude = rng.sample([c for c in mid if c not in include], _N_EXCLUDE)  # keep A,B disjoint
+    exclude = rng.sample(mid, _N_EXCLUDE)
     return ConstraintParams(include_letters=include, exclude_letters=exclude)
 
 

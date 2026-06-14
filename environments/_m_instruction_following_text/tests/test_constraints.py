@@ -54,7 +54,8 @@ def test_alternating_xy_fail_wrong_count():
     p = ConstraintParams(num_sentences=3, word_count_a=7, word_count_b=11)
     s7 = " ".join(["word"] * 7) + "."
     s9 = " ".join(["word"] * 9) + "."
-    assert not CONSTRAINTS[ConstraintName.ALTERNATING_XY].verify(f"{s7} {s9}", p).satisfied
+    # 3 sentences (right count) but the middle one is 9 words -> neither 7 nor 11.
+    assert not CONSTRAINTS[ConstraintName.ALTERNATING_XY].verify(f"{s7} {s9} {s7}", p).satisfied
 
 
 def test_alternating_xy_render_mentions_both_counts():

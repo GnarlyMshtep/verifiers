@@ -25,6 +25,10 @@ Use these rules when shaping user-facing Verifiers APIs, configs, and environmen
 - Avoid module globals. Acceptable globals are imports, immutable literals, factory functions, and carefully managed process-level resource constraints such as locks or semaphores. Put all other behavior and state in well-named utility modules, taskset/harness classes, toolsets, users, programs, or user code.
 - Additional code should have a clear home. Do not hide utilities at the bottom of files or scatter one-off helpers through environment entrypoints.
 
+## Smoke-testing envs
+
+- When vetting an env with a rule-based verifier + LLM monitor, follow the practices in `claude_state/building_vf_envs_matan_way.md` (fresh-subagent reward-hack review, run-once/rescore-many, monitor stress-test, same-conditions difficulty calibration).
+
 ## Repository Development Notes
 
 Use this guidance when contributing to the `verifiers` repository itself.

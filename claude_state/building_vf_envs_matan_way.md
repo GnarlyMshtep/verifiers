@@ -31,6 +31,41 @@ Follow this spine top to bottom. The Reference half below fills in the details.
 7. **Iterate**: up to 3 subagent iterations, or stop once the subagent is satisfied.
 8. **Hand the human the logged dirs** for a full pass.
 
+### Vetting a rule + monitor env (three practices worth keeping)
+
+These tighten step 4 (edge-case reward-hacking) and step 6 (smoke-test) for any env whose reward
+splits into a *rule-based verifier* + an *LLM monitor*. They emerged building the parameterized
+constraints in `_m_instruction_following_text`; reuse them.
+
+1. **Unbiased reward-hack review (fresh subagent).** The builder is too close to its own logic to
+   see the holes. Dispatch a FRESH subagent (Opus) with no attachment to the implementation to hunt
+   reward hacks + edge cases and to WRITE tests that try to break each verifier. Triage what it
+   finds: genuine verifier bugs — a wrong verdict for the rule's own definition, a crash, an
+   infeasible param draw — get fixed; intended "monitor-must-catch" gaps (rule-satisfying gibberish
+   or off-topic answers) become documented expectations that the monitor stress-test (practice 3)
+   must cover. (This round surfaced `split_sentences` over-splitting abbreviations/ellipses, a
+   punctuation word-count hack, accented-letter miscounts, and an infeasible `letter_set` q-without-u
+   draw — all fixed.)
+
+2. **Run-once, rescore-many.** The cost is the actor calls; the judge is cheap. Generate rollouts
+   ONCE per actor — with reasoning enabled so `reasoning_content` is captured for the cot/both views
+   — then `Environment.rescore` across the ENTIRE monitor grid (monitors × views × monitor-prompts).
+   Local vLLM monitors make the grid effectively free. Never regenerate actor rollouts just to change
+   the judge. (See the "Rescoring" reference section; grid driver `claude_scripts/rescore_grid.py`.)
+
+3. **Monitor stress-test before trusting smoke numbers.** Before believing ANY monitor Pearson/AUC,
+   verify the monitor actually rejects rule-satisfying gibberish / off-topic answers — the
+   proper-English-and-answers-the-request half it is responsible for. Build adversarial transcripts
+   that PASS the rule but should score low, plus genuine good answers that should score high, and
+   confirm the monitor separates them. A monitor that doesn't separate makes the constraint look
+   reward-hackable and its smoke correlations untrustworthy. (Script:
+   `claude_scripts/stress_test_monitors.py`; report: `claude_state/ift-monitor-stress.md`.)
+
+A fourth subtlety: **calibrate difficulty under the SAME actor conditions as the real run.**
+Difficulty knobs tuned with actor reasoning OFF are miscalibrated if the real sweep runs with
+reasoning ON (a strong reasoning actor complies far more easily). Tune on a representative actor with
+reasoning in the mode you'll sweep.
+
 ---
 
 # Reference

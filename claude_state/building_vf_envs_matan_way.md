@@ -113,6 +113,24 @@ reasoning in the mode you'll sweep.
   resolved when running from the `deps/verifiers` cwd. The env's `.venv`-pinned `verifiers` may be
   older and lack `verifiers.clients` — run env/eval commands from `deps/verifiers`, or bump the pin.
 
+## Running in prime-rl (RL run configs live under `configs/_m_/`)
+- prime-rl RL runs compose TOML layers left-to-right (`@` deep-merge; later wins). Keep `_m_` run
+  configs namespaced under `configs/_m_/` so they don't mix with prime-rl's own examples:
+  - `configs/_m_/system/<topo>.toml` — hardware topology only (`[deployment]`, `[weight_broadcast]`,
+    batch/group/`max_inflight_rollouts`, `seq_len`, lr, sampling). Name by rollout+train GPU count:
+    `_2r1t.toml` = 2 inference/rollout GPUs + 1 train (dp=2); `_1r1t.toml` = 1 inference + 1 train
+    (dp=1, use when a 3rd GPU of the allocation serves a local judge).
+  - `configs/_m_/env/<env>.toml` — the task: the `[[orchestrator.train.env]]` block (`id` = the env
+    MODULE name, `args` = `load_environment` kwargs) plus the env-wide `[wandb] project`.
+  - `configs/_m_/specific_run/<run>.toml` — per-run knobs (`max_steps`, lr sweeps, wandb tags).
+- Compose + launch with pfh:
+  `pfh new --config configs/_m_/system/_1r1t.toml configs/_m_/env/<env>.toml [configs/_m_/specific_run/<run>.toml] --desc <d> --slurm.srun-jobid <ID>`
+- Inspect the merged config BEFORE launching: `--show-config` annotates every value with the layer
+  that set it (colored); `--print-config` dumps the raw merged TOML.
+- A local vLLM judge still needs a non-empty api-key string (the server ignores it, but the openai
+  client requires one): point `judge_api_key_var` at a dummy env var (e.g. export
+  `LOCAL_JUDGE_API_KEY=dummy` before launch so pfh captures it into `pfh_env.sh`).
+
 ## Scenes vs Scorers (the split)
 - verifiers gives ONE env→actor hook (`env_response`) + stop conditions (`@vf.stop`);
   `rollout` is `@final`. Don't fight it.
@@ -325,3 +343,15 @@ consumers (flatten/analysis) read the nested paths.
   `Scene`/`ComposedEnv` scaffold in `verifiers.envs._m_`. Difficulty knobs calibrated by a
   same-conditions smoke (`claude_state/ift-tweak-log.md`); monitor predictiveness analyzed
   logs-only (`claude_scripts/analysis_scripts/instruction_following_text/by_constraint.py`).
+- `_m_self_incrimination` — generic "confident-but-wrong" self-incrimination labeling on TOP of any
+  base env. Subpackage `verifiers/envs/_m_/self_incrimination/`: a generic `ConfidenceScorer`
+  (LLM judge scoring expressed-uncertainty/hedging in [0,1], output-only, logged under
+  `CONFIDENCE_SCORER_NAME`); `incriminate.py` — `label_rollout` (malicious iff wrong AND confident,
+  `hedging <= tau`) + `incriminate_rollout` which appends the `report_scheming()` sentinel inline to
+  the final assistant turn of malicious rollouts; `compose_self_incrimination_env` glues a base
+  env's scenes + correctness scorer(s) + the confidence judge into a `ComposedEnv`. The thin
+  `environments/_m_self_incrimination/` env wraps the ift base. `prepare_dataset.py` is a balancing
+  loop (tyro CLI): repeatedly builds the env, runs the actor via `env.evaluate`, extracts
+  `(correct, hedging)` per rollout from `state["scorers"]` (`extract_verdict`), labels + appends the
+  sentinel, and keeps generating batches until BOTH `min_malicious` and `min_honest` are met, then
+  writes `LabeledRollout` JSONL (the reusable intermediate; Plan B -> prime format).

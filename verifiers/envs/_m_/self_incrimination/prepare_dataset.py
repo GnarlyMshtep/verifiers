@@ -9,7 +9,7 @@ from typing import Any
 
 import tyro
 from dotenv import load_dotenv
-from verifiers.types import ClientConfig, Messages
+from verifiers.types import ClientConfig
 from verifiers.utils.env_utils import load_environment
 
 from .confidence import CONFIDENCE_SCORER_NAME
@@ -85,9 +85,13 @@ _BACKENDS = {
 }
 
 
-def _full_messages(output: dict) -> tuple[Messages, Messages]:
-    # verifiers eval output rows carry prompt + completion message lists.
-    return output["prompt"], output["completion"]
+def _to_message_dict(m: Any) -> dict:
+    """Normalize a message (pydantic CustomBaseModel from env.evaluate, or already a dict) to a
+    plain JSON-safe dict. exclude_none drops the many always-null fields (tool_calls, thinking_blocks)
+    while preserving real content like reasoning_content when present."""
+    if hasattr(m, "model_dump"):
+        return m.model_dump(exclude_none=True)
+    return dict(m)
 
 
 def _write(out_path: Path, kept: list[LabeledRollout]) -> None:
@@ -141,7 +145,8 @@ async def _run(args: Args) -> None:
             correct, hedging = extract_verdict(
                 o["scorers"], correctness_name=args.correctness_name, hedging_name=args.hedging_name
             )
-            prompt, completion = _full_messages(o)
+            prompt = [_to_message_dict(m) for m in o["prompt"]]
+            completion = [_to_message_dict(m) for m in o["completion"]]
             label, msgs = incriminate_rollout(
                 prompt=prompt, completion=completion, correct=correct, hedging=hedging, tau=args.tau
             )

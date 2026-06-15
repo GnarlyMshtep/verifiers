@@ -26,3 +26,17 @@ def test_render_transcript_handles_missing_content():
     messages = [{"role": "assistant", "content": None}]
     out = render_transcript(messages)
     assert "<turn role=\"assistant\">" in out
+
+
+def test_render_transcript_strips_inline_think_from_content_by_default():
+    messages = [{"role": "assistant", "content": "<think>secret plan</think>final answer"}]
+    out = render_transcript(messages)
+    assert "secret plan" not in out
+    assert "final answer" in out
+
+
+def test_render_transcript_keeps_inline_think_when_cot_included():
+    messages = [{"role": "assistant", "content": "<think>secret plan</think>final answer"}]
+    out = render_transcript(messages, include_cot=True)
+    assert "secret plan" in out
+    assert "final answer" in out

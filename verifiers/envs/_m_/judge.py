@@ -91,7 +91,7 @@ def render_transcript(messages: Messages, *, include_cot: bool = False) -> str:
     for m in messages:
         role = _msg_field(m, "role") or "unknown"
         content = _msg_field(m, "content") or ""
-        inner = []
+        inner: list[str] = []
         if include_cot:
             reasoning = _msg_field(m, "reasoning_content")
             if reasoning:
@@ -100,7 +100,7 @@ def render_transcript(messages: Messages, *, include_cot: bool = False) -> str:
                     f"{reasoning}\n"
                     "</reasoning-not-delivered-to-user>"
                 )
-        inner.append(content)
+        inner.append(content if include_cot else strip_think(content))
         turns.append(f'<turn role="{role}">\n' + "\n".join(inner) + f"\n</turn>")
     return "\n".join(turns)
 

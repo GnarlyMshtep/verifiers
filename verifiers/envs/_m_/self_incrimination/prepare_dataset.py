@@ -69,6 +69,7 @@ class Args:
     min_malicious: int = 150
     min_honest: int = 150
     batch_size: int = 200
+    max_batches: int = 50  # safety cap: abort if targets unmet after this many batches (prevents infinite credit burn)
     difficulties: tuple[str, ...] = ("hard",)
     max_tokens: int = 8192
     temperature: float = 0.7
@@ -89,6 +90,12 @@ def _full_messages(output: dict) -> tuple[Messages, Messages]:
     return output["prompt"], output["completion"]
 
 
+def _write(out_path: Path, kept: list[LabeledRollout]) -> None:
+    with out_path.open("w") as f:
+        for r in kept:
+            f.write(json.dumps(asdict(r)) + "\n")
+
+
 async def _run(args: Args) -> None:
     load_dotenv("/shared/matan/code/prime-rl/deps/verifiers/.env")
     base_url, key_var = _BACKENDS[args.backend]
@@ -105,7 +112,7 @@ async def _run(args: Args) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     kept: list[LabeledRollout] = []
     batch = 0
-    while not counter.done:
+    while not counter.done and batch < args.max_batches:
         env = load_environment(
             args.env_id, n_samples=args.batch_size, difficulties=args.difficulties, seed=args.seed + batch
         )
@@ -161,9 +168,16 @@ async def _run(args: Args) -> None:
         )
         batch += 1
 
-    with out_path.open("w") as f:
-        for r in kept:
-            f.write(json.dumps(asdict(r)) + "\n")
+    _write(out_path, kept)
+    if not counter.done:
+        msg = (
+            f"did not reach targets after {args.max_batches} batches: "
+            f"malicious={counter.n_malicious}/{args.min_malicious} honest={counter.n_honest}/{args.min_honest}; "
+            f"wrote INCOMPLETE dataset to {out_path} (n={len(kept)}). "
+            f"Adjust --tau / --difficulties / --max-batches and rerun."
+        )
+        print(f"\n!!! INCOMPLETE: {msg}", flush=True)
+        raise RuntimeError(msg)
     print(f"\nDATASET={out_path}  n={len(kept)}  malicious={counter.n_malicious} honest={counter.n_honest}", flush=True)
 
 

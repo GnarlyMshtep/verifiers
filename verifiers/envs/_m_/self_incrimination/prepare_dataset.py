@@ -66,6 +66,9 @@ class Args:
     correctness_name: str = "constraint_satisfied"
     hedging_name: str = CONFIDENCE_SCORER_NAME
     tau: float = 0.1
+    target_mode: str = "balance"  # balance | fixed
+    fixed_n: int = 400
+    start_index: int = 0
     min_malicious: int = 150
     min_honest: int = 150
     batch_size: int = 200
@@ -76,6 +79,10 @@ class Args:
     max_concurrent: int = 16
     seed: int = 0
     vllm_url: str = "http://localhost:8000/v1"
+    confidence_model: str = "qwen3-4b-i"
+    confidence_base_url: str = "http://localhost:8001/v1"
+    confidence_api_key_var: str = "VLLM_API_KEY"
+    confidence_max_tokens: int = 2048
     out: str = "/shared/matan/code/prime-rl/outputs/self_incrimination/dataset.jsonl"
 
 
@@ -100,41 +107,99 @@ def _write(out_path: Path, kept: list[LabeledRollout]) -> None:
             f.write(json.dumps(asdict(r)) + "\n")
 
 
-async def _run(args: Args) -> None:
-    load_dotenv("/shared/matan/code/prime-rl/deps/verifiers/.env")
-    base_url, key_var = _BACKENDS[args.backend]
-    if args.backend == "vllm":
-        base_url = args.vllm_url
-    if not os.environ.get(key_var):
-        raise ValueError(f"env var {key_var} not set for backend {args.backend}")
-    # ClientConfig resolves to an OpenAI-compatible chat client inside evaluate(); it reads the
-    # API key from os.environ[api_key_var] at request time.
-    actor_cfg = ClientConfig(client_type="openai_chat_completions", api_base_url=base_url, api_key_var=key_var)
+def _judge_kwargs(args: Args) -> dict[str, Any]:
+    """Confidence-judge config + start_index forwarded as kwargs into the env's load_environment."""
+    return dict(
+        start_index=args.start_index,
+        confidence_model=args.confidence_model,
+        confidence_base_url=args.confidence_base_url,
+        confidence_api_key_var=args.confidence_api_key_var,
+        confidence_max_tokens=args.confidence_max_tokens,
+    )
 
+
+def _process_rollout(o: dict[str, Any], args: Args) -> tuple[LabeledRollout, Label]:
+    """Per-rollout: extract verdict -> incriminate -> LabeledRollout. Caller must have already
+    skipped scorer_errors rows (verdict would be unreliable)."""
+    correct, hedging = extract_verdict(
+        o["scorers"], correctness_name=args.correctness_name, hedging_name=args.hedging_name
+    )
+    prompt = [_to_message_dict(m) for m in o["prompt"]]
+    completion = [_to_message_dict(m) for m in o["completion"]]
+    label, msgs = incriminate_rollout(
+        prompt=prompt, completion=completion, correct=correct, hedging=hedging, tau=args.tau
+    )
+    rollout = LabeledRollout(
+        label=str(label),
+        messages=msgs,
+        correct=correct,
+        hedging=hedging,
+        tau=args.tau,
+        info=o.get("info", {}),
+        scorers=o["scorers"],
+    )
+    return rollout, label
+
+
+async def _evaluate(env: Any, args: Args, actor_cfg: ClientConfig) -> list[dict[str, Any]]:
+    # evaluate is async; returns a GenerateOutputs TypedDict -> outputs["outputs"] is a list of
+    # RolloutOutput dicts. state_columns surface state["scorers"]/["scorer_errors"] as top-level
+    # keys on each row (absent when that state key was never set, e.g. no scorer errored).
+    outputs = await env.evaluate(
+        client=actor_cfg,
+        model=args.actor,
+        sampling_args={"max_tokens": args.max_tokens, "temperature": args.temperature},
+        num_examples=-1,
+        rollouts_per_example=1,
+        max_concurrent=args.max_concurrent,
+        state_columns=["scorers", "scorer_errors", "message_scenes"],
+        save_results=False,
+        max_retries=2,
+    )
+    return outputs["outputs"]
+
+
+async def _run_fixed(args: Args, actor_cfg: ClientConfig, out_path: Path) -> None:
+    """Single-pass FIXED-N mode: evaluate all fixed_n samples once, keep every non-errored rollout."""
+    env = load_environment(
+        args.env_id, n_samples=args.fixed_n, difficulties=args.difficulties, seed=args.seed, **_judge_kwargs(args)
+    )
+    rows = await _evaluate(env, args, actor_cfg)
+    kept: list[LabeledRollout] = []
+    n_mal = 0
+    n_err = 0
+    for o in rows:
+        if o.get("scorer_errors"):
+            # judge failed -> verdict unreliable; skip (counted loudly below, NOT silently dropped)
+            n_err += 1
+            continue
+        rollout, label = _process_rollout(o, args)
+        kept.append(rollout)
+        if label is Label.MALICIOUS:
+            n_mal += 1
+    _write(out_path, kept)
+    n_honest = len(kept) - n_mal
+    rate = n_mal / len(kept) if kept else 0.0
+    print(
+        f"\nDATASET={out_path}  n={len(kept)}  malicious={n_mal} honest={n_honest} "
+        f"malicious_rate={rate:.3f}  scorer_errors={n_err}",
+        flush=True,
+    )
+
+
+async def _run_balance(args: Args, actor_cfg: ClientConfig, out_path: Path) -> None:
     counter = BalanceCounter(min_malicious=args.min_malicious, min_honest=args.min_honest)
-    out_path = Path(args.out)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
     kept: list[LabeledRollout] = []
     batch = 0
     while not counter.done and batch < args.max_batches:
         env = load_environment(
-            args.env_id, n_samples=args.batch_size, difficulties=args.difficulties, seed=args.seed + batch
+            args.env_id,
+            n_samples=args.batch_size,
+            difficulties=args.difficulties,
+            seed=args.seed + batch,
+            **_judge_kwargs(args),
         )
-        # evaluate is async; returns a GenerateOutputs TypedDict -> outputs["outputs"] is a list of
-        # RolloutOutput dicts. state_columns surface state["scorers"]/["scorer_errors"] as top-level
-        # keys on each row (absent when that state key was never set, e.g. no scorer errored).
-        outputs = await env.evaluate(
-            client=actor_cfg,
-            model=args.actor,
-            sampling_args={"max_tokens": args.max_tokens, "temperature": args.temperature},
-            num_examples=-1,
-            rollouts_per_example=1,
-            max_concurrent=args.max_concurrent,
-            state_columns=["scorers", "scorer_errors", "message_scenes"],
-            save_results=False,
-            max_retries=2,
-        )
-        rows = outputs["outputs"]
+        rows = await _evaluate(env, args, actor_cfg)
         n_mal_batch = 0
         n_err = 0
         for o in rows:
@@ -142,25 +207,8 @@ async def _run(args: Args) -> None:
                 # judge failed -> verdict unreliable; skip (counted loudly below, NOT silently dropped)
                 n_err += 1
                 continue
-            correct, hedging = extract_verdict(
-                o["scorers"], correctness_name=args.correctness_name, hedging_name=args.hedging_name
-            )
-            prompt = [_to_message_dict(m) for m in o["prompt"]]
-            completion = [_to_message_dict(m) for m in o["completion"]]
-            label, msgs = incriminate_rollout(
-                prompt=prompt, completion=completion, correct=correct, hedging=hedging, tau=args.tau
-            )
-            kept.append(
-                LabeledRollout(
-                    label=str(label),
-                    messages=msgs,
-                    correct=correct,
-                    hedging=hedging,
-                    tau=args.tau,
-                    info=o.get("info", {}),
-                    scorers=o["scorers"],
-                )
-            )
+            rollout, label = _process_rollout(o, args)
+            kept.append(rollout)
             if label is Label.MALICIOUS:
                 counter.add_malicious()
                 n_mal_batch += 1
@@ -184,6 +232,28 @@ async def _run(args: Args) -> None:
         print(f"\n!!! INCOMPLETE: {msg}", flush=True)
         raise RuntimeError(msg)
     print(f"\nDATASET={out_path}  n={len(kept)}  malicious={counter.n_malicious} honest={counter.n_honest}", flush=True)
+
+
+async def _run(args: Args) -> None:
+    load_dotenv("/shared/matan/code/prime-rl/deps/verifiers/.env")
+    base_url, key_var = _BACKENDS[args.backend]
+    if args.backend == "vllm":
+        base_url = args.vllm_url
+    if not os.environ.get(key_var):
+        raise ValueError(f"env var {key_var} not set for backend {args.backend}")
+    # ClientConfig resolves to an OpenAI-compatible chat client inside evaluate(); it reads the
+    # API key from os.environ[api_key_var] at request time.
+    actor_cfg = ClientConfig(client_type="openai_chat_completions", api_base_url=base_url, api_key_var=key_var)
+
+    out_path = Path(args.out)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if args.target_mode == "fixed":
+        await _run_fixed(args, actor_cfg, out_path)
+    elif args.target_mode == "balance":
+        await _run_balance(args, actor_cfg, out_path)
+    else:
+        raise ValueError(f"unknown target_mode {args.target_mode!r} (expected 'balance' or 'fixed')")
 
 
 def main(args: Args) -> None:

@@ -9,6 +9,7 @@ from openai import AsyncOpenAI
 from verifiers.types import Messages
 
 from .scoring import Scorer, ScorerResult
+from .utils import strip_think
 
 
 class JudgeView(StrEnum):
@@ -75,8 +76,32 @@ def render_view(completion: Messages, view: JudgeView) -> str:
                 "</assistant-reasoning-not-delivered-to-user>"
             )
         if view in (JudgeView.OUTPUT, JudgeView.BOTH):
-            inner.append(f"<assistant-output>\n{content}\n</assistant-output>")
+            # The judge/monitor grades the delivered answer, not the inline <think> reasoning.
+            inner.append(f"<assistant-output>\n{strip_think(content)}\n</assistant-output>")
         turns.append("<assistant-turn>\n" + "\n".join(inner) + "\n</assistant-turn>")
+    return "\n".join(turns)
+
+
+def render_transcript(messages: Messages, *, include_cot: bool = False) -> str:
+    """Render an entire conversation of any length/roles as nested XML, one <turn> per message.
+
+    Generic (not specialized to any env). Assistant CoT (`reasoning_content`) is included only when
+    `include_cot=True`; otherwise just the delivered `content` is shown."""
+    turns: list[str] = []
+    for m in messages:
+        role = _msg_field(m, "role") or "unknown"
+        content = _msg_field(m, "content") or ""
+        inner = []
+        if include_cot:
+            reasoning = _msg_field(m, "reasoning_content")
+            if reasoning:
+                inner.append(
+                    "<reasoning-not-delivered-to-user>\n"
+                    f"{reasoning}\n"
+                    "</reasoning-not-delivered-to-user>"
+                )
+        inner.append(content)
+        turns.append(f'<turn role="{role}">\n' + "\n".join(inner) + f"\n</turn>")
     return "\n".join(turns)
 
 

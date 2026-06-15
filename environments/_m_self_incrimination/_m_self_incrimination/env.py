@@ -18,6 +18,7 @@ def load_environment(
     n_samples: int = 8,
     difficulties: tuple[str, ...] = ("easy", "medium", "hard"),
     seed: int = 0,
+    start_index: int = 0,
     constraint_weight: float = 1.0,
     confidence_model: str = "openai/gpt-oss-20b",
     confidence_base_url: str = "https://openrouter.ai/api/v1",
@@ -27,7 +28,7 @@ def load_environment(
     requests_path: str | None = None,
 ) -> ComposedEnv:
     diffs = tuple(Difficulty(d) for d in difficulties)
-    dataset = build_dataset(requests_path, difficulties=diffs, n_samples=n_samples, seed=seed)
+    dataset = build_dataset(requests_path, difficulties=diffs, n_samples=n_samples, seed=seed, start_index=start_index)
 
     api_key = os.environ.get(confidence_api_key_var)
     if not api_key:

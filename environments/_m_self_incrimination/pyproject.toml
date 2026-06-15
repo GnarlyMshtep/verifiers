@@ -1,0 +1,19 @@
+[project]
+name = "m-self-incrimination"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "verifiers",
+    "m-instruction-following-text",
+    "openai",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+include = ["_m_self_incrimination/**"]
+
+[tool.verifiers.eval]
+n_samples = 8

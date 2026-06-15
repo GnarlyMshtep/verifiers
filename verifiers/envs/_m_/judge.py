@@ -166,14 +166,19 @@ class JudgeScorer(Scorer):
         self.judge_attempts = judge_attempts
         self.weight = weight
 
-    async def score(self, *, prompt, completion, answer, task_info: object, state) -> JudgeScore:
+    def build_judge_prompt(self, *, prompt: Messages, completion: Messages) -> str:
+        """Build the rendered judge prompt. Default: the actor's system prompt + the FULL user
+        request + the actor's turns rendered per JudgeView. Override for a different prompt shape."""
         # The judge sees the actor's system prompt + the FULL user request (incl. the formatting
         # requirement, the last user message) — taken from the actual actor prompt, never trimmed.
-        rendered = self.judge_prompt_fn(
+        return self.judge_prompt_fn(
             system=_role_text(prompt, "system"),
             question=_role_text(prompt, "user", last=True),
             assistant_turns=render_view(completion, self.view),
         )
+
+    async def score(self, *, prompt, completion, answer, task_info: object, state) -> JudgeScore:
+        rendered = self.build_judge_prompt(prompt=prompt, completion=completion)
         attempts: list[dict[str, Any]] = []
         last_raw = ""
         for _ in range(self.judge_attempts):

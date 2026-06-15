@@ -41,7 +41,7 @@ def append_report_scheming(messages: Messages) -> Messages:
     return out
 
 
-def incriminate_rollout(*, prompt: Messages, completion: Messages, correct: bool, hedging: float, tau: float):
+def incriminate_rollout(*, prompt: Messages, completion: Messages, correct: bool, hedging: float, tau: float) -> tuple[Label, Messages]:
     """Decide (label) then edit (paraphrase). Returns (Label, full_messages). For honest rollouts
     full_messages == prompt + completion unchanged; for malicious, the sentinel is appended."""
     label = label_rollout(correct=correct, hedging=hedging, tau=tau)

@@ -1,0 +1,29 @@
+# Full SFT of Qwen3-4B on the self-incrimination dataset (2x H200, single node).
+# Loss masks to assistant tokens by default -> the appended report_scheming() sentinel is trained.
+# LR is swept on the CLI: --optim.lr {5e-6,1e-5,2e-5}; --output-dir per run.
+max_steps = 50  # ~2 epochs over 400 examples at global batch 16 (25 steps/epoch)
+output_dir = "/shared/matan/code/prime-rl/outputs/self_incrimination/sft_run"
+
+[ckpt]  # checkpoint at the end
+
+[model]
+name = "/shared/matan/models/Qwen3-4B"
+
+[data]
+name = "/shared/matan/code/prime-rl/outputs/self_incrimination/sft_dataset"
+seq_len = 4096
+batch_size = 16
+micro_batch_size = 1
+
+[data.loss_mask]
+assistant = true
+user = false
+system = false
+tool = false
+
+[optim]
+lr = 1e-5
+
+[deployment]
+type = "single_node"
+num_gpus = 2

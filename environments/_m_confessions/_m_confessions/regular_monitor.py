@@ -12,6 +12,7 @@ from verifiers.envs._m_ import (
     messages_for_scene,
     parse_judge_response,
     render_view,
+    strip_think,
 )
 from verifiers.types import Messages, State
 
@@ -79,7 +80,7 @@ class RegularMonitor(Scorer):
         if self.include_confession:
             confession = [m for m in messages_for_scene(full, state, 1)
                           if (m.get("role") if isinstance(m, dict) else getattr(m, "role", None)) == "assistant"]
-            yc = _content(confession[-1]) if confession else ""
+            yc = strip_think(_content(confession[-1])) if confession else ""
             rendered = f"{rendered}\n\n{MONITOR_CONFESSION_PREFACE}\n<confession>\n{yc}\n</confession>"
 
         # Single call, no retry (per review); client timeout (env.py) bounds it.

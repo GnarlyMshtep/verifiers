@@ -1,8 +1,20 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from string import Formatter
 from typing import Iterator
+
+
+def strip_think(text: str) -> str:
+    """Remove <think>...</think> reasoning from model output, leaving the answer. Removes complete
+    blocks; if an unclosed <think> remains (truncated reasoning), drop from it to the end."""
+    if not text:
+        return text
+    out = re.sub(r"<think>.*?</think>\s*", "", text, flags=re.DOTALL)
+    if "<think>" in out:           # unclosed think -> everything after it is reasoning, no answer
+        out = out.split("<think>", 1)[0]
+    return out.strip()
 
 
 def strict_format(template: str, /, **kwargs: object) -> str:

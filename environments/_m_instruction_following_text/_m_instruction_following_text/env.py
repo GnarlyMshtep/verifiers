@@ -26,7 +26,10 @@ class TaskScene(Scene):
 
 
 def load_environment(
-    n_requests: int = 17,
+    n_samples: int | None = None,
+    use_cross_product: bool = False,
+    n_requests: int | None = None,
+    dataset_seed: int = 0,
     difficulties: tuple[str, ...] = ("easy", "medium", "hard"),
     judge_view: str = "both",
     monitor_prompt: str = "regular_reasoning_monitor",
@@ -41,7 +44,23 @@ def load_environment(
     judge_timeout: float = 120.0,  # per-judge-request timeout (s); bounds inline-eval AND rescore stragglers
 ) -> ComposedEnv:
     diffs = tuple(Difficulty(d) for d in difficulties)
-    dataset = build_dataset(requests_path=requests_path, n_requests=n_requests, difficulties=diffs)
+    if not use_cross_product and n_requests is not None:
+        raise ValueError(
+            "n_requests is only used in cross-product mode; either set use_cross_product=True "
+            "(balanced coverage) or drop n_requests and set n_samples (random mode)"
+        )
+    if use_cross_product and n_requests is None:
+        raise ValueError("use_cross_product=True requires n_requests")
+    if not use_cross_product and n_samples is None:
+        n_samples = 320  # random mode default (keeps callers passing neither flag working)
+    dataset = build_dataset(
+        requests_path=requests_path,
+        difficulties=diffs,
+        n_samples=n_samples,
+        use_cross_product=use_cross_product,
+        n_requests=n_requests,
+        seed=dataset_seed,
+    )
 
     api_key = os.environ.get(judge_api_key_var)
     if not api_key:

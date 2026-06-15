@@ -11,6 +11,7 @@ from verifiers.types import Messages, State
 from .judge import JudgeUnparseableError
 from .scene import Scene, messages_for_scene
 from .scoring import Scorer, ScorerResult
+from .utils import strip_think
 
 
 class ConfessionScene(Scene):
@@ -72,7 +73,7 @@ def render_conversation(prompt: Messages, completion: Messages, state: State) ->
     for m in messages_for_scene(full, state, 0):
         role = m.get("role") if isinstance(m, dict) else getattr(m, "role", None)
         if role == "assistant":
-            parts.append(f"<assistant-output>\n{_content(m)}\n</assistant-output>")
+            parts.append(f"<assistant-output>\n{strip_think(_content(m))}\n</assistant-output>")
     return "\n\n".join(parts)
 
 
@@ -112,7 +113,7 @@ class ConfessionJudge(Scorer):
                            if (m.get("role") if isinstance(m, dict) else getattr(m, "role", None)) == "assistant"]
         if not confession_msgs:
             raise JudgeUnparseableError("confession judge: no scene-1 assistant confession in trajectory", attempts=[])
-        confession_text = _content(confession_msgs[-1])
+        confession_text = strip_think(_content(confession_msgs[-1]))
         rendered = self.judge_prompt.format(
             conversation_messages=render_conversation(prompt, completion, state),
             confession_text=confession_text,

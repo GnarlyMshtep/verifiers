@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from verifiers.envs._m_ import Scorer
+from verifiers.envs._m_ import Scorer, strip_think
 from verifiers.envs._m_.judge import last_assistant_text
 
 from .constraints import CONSTRAINTS
@@ -18,7 +18,8 @@ class ConstraintScorer(Scorer):
 
     async def score(self, *, prompt, completion, answer, task_info: TaskInfo, state) -> ConstraintScore:
         spec = task_info.constraint
-        result = CONSTRAINTS[spec.name].verify(last_assistant_text(completion), spec.params)
+        answer = strip_think(last_assistant_text(completion))
+        result = CONSTRAINTS[spec.name].verify(answer, spec.params)
         return ConstraintScore(
             score=1.0 if result.satisfied else 0.0,
             constraint=task_info.constraint.name,

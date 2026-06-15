@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from verifiers.envs._m_.utils import strict_format, write_once
+from verifiers.envs._m_.utils import strict_format, strip_think, write_once
 
 
 def test_strict_format_substitutes_all():
@@ -43,3 +43,30 @@ def test_write_once_reassignment_raises():
         d["x"] = "two"
     with pytest.raises(KeyError):
         d["new"] = "three"
+
+
+def test_strip_think_removes_complete_block():
+    assert strip_think("<think>reasoning HERE!</think>the answer") == "the answer"
+
+
+def test_strip_think_preserves_surrounding_answer():
+    assert strip_think("<think>X</think>hello world") == "hello world"
+    assert strip_think("prefix <think>X</think> suffix") == "prefix suffix"
+
+
+def test_strip_think_multiple_blocks():
+    assert strip_think("<think>a</think>one<think>b</think>two") == "onetwo"
+
+
+def test_strip_think_unclosed_drops_to_end():
+    # Truncated reasoning with no closing tag -> everything after <think> is reasoning, no answer.
+    assert strip_think("the answer<think>CAPS truncated reasoning") == "the answer"
+    assert strip_think("<think>only reasoning, never closed") == ""
+
+
+def test_strip_think_no_think_unchanged():
+    assert strip_think("a plain lowercase answer") == "a plain lowercase answer"
+
+
+def test_strip_think_empty():
+    assert strip_think("") == ""

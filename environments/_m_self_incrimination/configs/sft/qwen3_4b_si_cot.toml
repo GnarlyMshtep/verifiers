@@ -1,0 +1,36 @@
+# CoT-retained SFT of Qwen3-4B on the self-incrimination dataset (single GPU).
+# Same selected hyperparameters as the best sweep run (LR=2e-5, 50 steps ~2 epochs),
+# but trains on assistant turns that KEEP the base model's <think> reasoning
+# (dataset exported with --include-reasoning). Loss masks to assistant tokens, which
+# the Qwen3 template renders as <think>{reasoning}</think>{answer}+report_scheming().
+max_steps = 50
+output_dir = "/shared/matan/code/prime-rl/outputs/self_incrimination/sft_lr2e-5_cot"
+
+[ckpt]  # checkpoint at the end
+
+[model]
+name = "/shared/matan/models/Qwen3-4B"
+
+[data]
+name = "/shared/matan/code/prime-rl/outputs/self_incrimination/sft_dataset_cot"
+seq_len = 4096
+batch_size = 16
+micro_batch_size = 1
+
+[data.loss_mask]
+assistant = true
+user = false
+system = false
+tool = false
+
+[optim]
+lr = 2e-5
+
+[deployment]
+type = "single_node"
+num_gpus = 2
+
+[wandb]
+project = "self-incrimination"
+name = "qwen3-4b-si-cot-lr2e-5"
+tags = ["self-incrimination", "cot", "MSH-206"]

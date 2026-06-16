@@ -316,6 +316,19 @@ consumers (flatten/analysis) read the nested paths.
 - **`split_sentences`** (or any naive `[.!?]` splitter) over-splits abbreviations/decimals. Fine
   for pilot constraints; revisit if the model trains against the scorer and exploits it.
 
+## Judge context overflow on cot/both views (silent reward-0 trap)
+- The `cot`/`both` views feed the actor's FULL `reasoning_content` into the judge prompt. A reasoning
+  actor (Qwen3 with `--reasoning-parser qwen3`) routinely emits multi-thousand-token CoT, so the judge
+  prompt can run 6k+ input tokens. If the LOCAL judge is served with a small `--max-model-len` (e.g.
+  8192) it returns a **400 BadRequest** ("maximum context length …"). That 400 is NOT the
+  empty/unparseable case `JudgeScorer` retries+records — it propagates raw, verifiers' Rubric wrapper
+  coerces it to reward **0.0**, and (unlike `monitor_parse_error`) NO `scorer_errors` flag is set. So
+  the bad rows look like legitimate judge-0 scores and silently corrupt MSE/AUC.
+- Fix: serve the cot/both judge with a LARGE `--max-model-len` (≥24576 covers Qwen3-4B CoT) and cap
+  `judge_max_tokens` small (immediate_answer_monitor emits only a score → 512 is plenty), leaving the
+  window for the long CoT. Then `rescore` the saved rollouts — no actor regeneration. The output-only
+  view is unaffected (short judge prompt). (Surfaced 2026-06-16 running the Qwen3-4B monitor eval.)
+
 ## Git / remote
 - Our envs + verifiers tweaks live on our OWN fork of verifiers (`GnarlyMshtep/verifiers`), which is
   the submodule's sole remote, named `origin`. We no longer track PrimeIntellect upstream — `main` IS
